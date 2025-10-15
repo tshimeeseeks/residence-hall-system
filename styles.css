@@ -1,0 +1,449 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #fddfbc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+}
+
+h1,
+h2 {
+  color: #333;
+  text-align: center;
+  justify-content: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+label {
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fddfbc;
+}
+
+p {
+  font-weight: bold;
+}
+
+.btn {
+  display: inline-block;
+  margin: 15px 0;
+  padding: 10px;
+  background: #da8858;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 0.3s;
+  text-align: center;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #fddfbc;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.options {
+  list-style: none;
+  padding: 0;
+}
+
+.options li {
+  margin: 10px 0;
+}
+
+.options a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+  background: rgba(233, 175, 120);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Welcome */
+.welcome {
+  margin: 15px 0;
+  font-size: 14px;
+  text-align: center;
+  color: #333;
+}
+
+/* Section title */
+.section-title {
+  margin: 20px 0 10px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: #064420;
+}
+
+/* Grid */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.option-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(162, 164, 21, 0.518);
+}
+
+.option-card i {
+  font-size: 28px;
+  color: #ff6600;
+  margin-bottom: 10px;
+}
+
+.option-card p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Form Container */
+.form-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Header */
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-header h2 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 22px;
+  color: #064420;
+}
+
+/* Subtitle */
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  margin: 10px 0 20px;
+  color: #333;
+}
+
+/* Input Fields */
+.signup-form label {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 8px 0 5px;
+  display: block;
+  color: #333;
+}
+
+.signup-form input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #fddfbc; /* soft orange background */
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Sign Up Button */
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background: #da8858;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.signup-btn:hover {
+  background: #e65c00;
+}
+.footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.footer a {
+  color: #333;
+  font-size: 22px;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: #ff6600; /* orange hover effect */
+}
+
+/* ===============================
+   RESPONSIVE DESIGN (Mobile-first)
+   =============================== */
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    padding: 20px;
+  }
+
+  .container,
+  .dashboard-container,
+  .form-container {
+    width: 100%;
+    max-width: 90%;
+    padding: 20px;
+    margin-top: 40px;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr; /* stack cards vertically */
+    gap: 20px;
+  }
+
+  .option-card {
+    padding: 15px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .signup-form input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .signup-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .footer {
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .footer a {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1,
+  h2 {
+    font-size: 18px;
+  }
+
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .option-card i {
+    font-size: 24px;
+  }
+
+  .option-card p {
+    font-size: 13px;
+  }
+
+  .signup-form input {
+    font-size: 13px;
+  }
+
+  .signup-btn {
+    font-size: 13px;
+  }
+}
+
+.image {
+  width: 200px;
+  height: 200px;
+  background-image: transparent;
+}
+
+#arrow {
+  color: black;
+}
+
+/* -------------------- GENERAL SETUP -------------------- */
+.signup-body {
+    /* Background color of the whole page */
+    background-color: #f7e9d7; 
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    min-height: 100vh;
+}
+
+/* -------------------- CONTAINER STYLES -------------------- */
+.signup-container {
+    background-color: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px; /* Control the form width */
+    text-align: center;
+}
+
+.title {
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 0.9em;
+}
+
+/* -------------------- INPUT GROUPS (Straight Alignment) -------------------- */
+
+.input-group {
+    /* Use flexbox for perfect horizontal alignment of label and input */
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px; /* Space between label and input */
+}
+
+.input-group label {
+    /* Sets a fixed width for the labels so the inputs start at the same point */
+    width: 120px; 
+    text-align: left;
+    font-weight: bold;
+    color: #444;
+}
+
+.input-group input {
+    /* Makes the input field take up the rest of the available space */
+    flex-grow: 1; 
+    padding: 10px;
+    border: none; /* Remove default border */
+    border-radius: 5px;
+    /* Color matching the image's input fields */
+    background-color: #fcece0; 
+    font-size: 1em;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset;
+    transition: background-color 0.3s;
+}
+
+/* Ensure password fields are the same size */
+#password, #repeat-password {
+    flex-grow: 1;
+}
+
+.input-group input:focus {
+    outline: none;
+    background-color: #fff8f2;
+    box-shadow: 0 0 0 2px #d2b48c; /* Subtle focus ring */
+}
+
+/* -------------------- BUTTON STYLING -------------------- */
+.signup-btn {
+    width: 100%;
+    padding: 12px 20px;
+    margin-top: 20px;
+    background-color: #f7f7f7; /* Light grey/white to match the image */
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.signup-btn:hover {
+    background-color: #e0e0e0; /* Subtle hover effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
