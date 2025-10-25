@@ -12,7 +12,7 @@ import com.rhs.backend.model.embedded.RoomDetails;
 
 import org.springframework.data.mongodb.core.index.Indexed;
 
-@Document(collection = "users")
+@Document(collection = "students")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

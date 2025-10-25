@@ -1,4 +1,4 @@
-package com.rhs.backend.dto;
+package com.rhs.backend.dto.request;
 
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
