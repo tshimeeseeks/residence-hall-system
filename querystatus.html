@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Query Status</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <h2>
+            <i class="fa-solid fa-file-circle-question"></></i>Query Status
+          </h2>
+
+      <div class="query-box">
+        <h3>Your Question:</h3>
+        <p id="userQuestion">Loading your question...</p>
+      </div>
+
+      <div class="response-box" id="responseBox">
+        <h3>Admin Response:</h3>
+        <p id="adminResponse">Pending...</p>
+      </div>
+
+      <div class="query-date" id="queryDate"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

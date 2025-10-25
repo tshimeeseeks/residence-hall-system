@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleepover</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2><i class="fas fa-bed"></i>Sleepover Form</h2>
+      </div>
+      <p class="subtitle">Request a sleepover pass</p>
+
+      <form class="signup-form">
+        <label for="guest-name">Enter Room Number</label>
+        <input type="text" id="guest-name" placeholder="Enter room number" />
+
+        <label for="guest-name">Visitor's Name</label>
+        <input type="text" id="guest-name" placeholder="Enter visitor's name" />
+
+        <label for="guest-name">Visitor's ID</label>
+        <input type="text" id="guest-name" placeholder="Enter visitor's ID" />
+
+        <label for="guest-name">Phone Number</label>
+        <input type="text" id="guest-name" placeholder="Enter Phone Number" />
+
+        <label for="date">Date of Sleepover</label>
+        <input type="date" id="date" />
+
+        <button class="submit-btn" onclick="simulateSubmit(this)">Send</button>
+      </form>
+      <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

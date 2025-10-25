@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Details</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+        <h2>Student Profile</h2>
+      </div>
+
+      <div class="student-info">
+        <h3 id="studentName">Loading...</h3>
+        <p>
+          <strong>Student Fullname:</strong> <span id="studentNumber">N/A</span>
+        </p>
+        <p>
+          <strong>Student Number:</strong> <span id="studentNumber">N/A</span>
+        </p>
+        <p><strong>Room Number:</strong> <span id="roomNumber">N/A</span></p>
+        <p><strong>Email:</strong> <span id="studentEmail">N/A</span></p>
+      </div>
+
+      <button class="delete-btn" onclick="confirmDeleteStudent()">
+        <i class="fa-solid fa-trash"></i> Remove Student
+      </button>
+      <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <div id="confirmBox" class="confirm-box hidden">
+      <p>Are you sure you want to remove this student?</p>
+      <div class="confirm-actions">
+        <button class="confirm-yes" onclick="deleteStudent()">Yes</button>
+        <button class="confirm-no" onclick="closeConfirm()">No</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

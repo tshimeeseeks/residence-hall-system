@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maintenance Status</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <div class="status-card">
+        <div class="status-header">
+          <h2>
+            <i class="fa-solid fa-helmet-safety"></></i>Maintenance Status
+          </h2>
+        </div>
+
+        <div class="status-box">
+          <p>
+            <strong>Status:</strong> <span class="status pending">Pending</span>
+          </p>
+          <!-- Options: status fixed | pending | investigation -->
+        </div>
+
+        <div class="date-box">
+          <p><strong>Date Requested:</strong> October 6, 2025</p>
+        </div>
+
+        <div class="image-box">
+          <p><strong>Uploaded Image:</strong></p>
+          <img
+            src="https://via.placeholder.com/350x200.png?text=Uploaded+Issue+Image"
+            alt="Uploaded issue image"
+          />
+        </div>
+      </div>
+       <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Details</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <!-- Header -->
+      <div class="header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+        <h2>My Account</h2>
+      </div>
+
+      <!-- Account Information -->
+      <div class="account-info">
+        <div class="info-item">
+          <i class="fa-solid fa-user"></i>
+          <div>
+            <p class="label">Full Name</p>
+            <p id="fullName">John Doe</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <p class="label">Email</p>
+            <p id="email">john.doe@example.com</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-phone"></i>
+          <div>
+            <p class="label">Phone Number</p>
+            <p id="phoneNumber">+27 71 234 5678</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="edit-btn" onclick="editAccount()">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

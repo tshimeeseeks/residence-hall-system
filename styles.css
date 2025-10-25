@@ -1,19 +1,24 @@
+/*====== BODY FOR BOTH USER END ADMIN END  =====*/
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fddfbc 20%, #da8858 50%, white 100%);
+  background-attachment: fixed;
+  background-size: cover;
   font-family: Arial, sans-serif;
-  background: #fddfbc;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.container {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 350px;
   text-align: center;
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+  opacity: 10;
+  transition: opacity 0.4s ease;
+}
+/*==== BODY ANIMATION === */
+body.fade-in {
+  opacity: 1;
 }
 
 h1,
@@ -43,6 +48,36 @@ input {
 
 p {
   font-weight: bold;
+}
+
+/* Optional subtle animation for more professionalism */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+/*======CONTAINER FOR INDEX.HTML( START UP PAGE)=====*/
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+}
+
+/* WEB APP LOGO */
+.logo {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px;
 }
 
 .btn {
@@ -78,7 +113,7 @@ p {
 }
 
 .options a {
-  color: #007bff;
+  color: #da8858;
   text-decoration: none;
 }
 
@@ -88,7 +123,7 @@ p {
 
 /* Dashboard Layout */
 .dashboard-container {
-  background: rgba(233, 175, 120);
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   width: 100%;
   max-width: 400px;
@@ -99,18 +134,19 @@ p {
 }
 
 /* Header */
+/* 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
+} */
 
-.icon-btn {
+/* .icon-btn {
   background: none;
   border: none;
   font-size: 20px;
   cursor: pointer;
-}
+} */
 
 /* Welcome */
 .welcome {
@@ -149,7 +185,7 @@ p {
 
 .option-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(162, 164, 21, 0.518);
+  box-shadow: 0 4px 12px #da8858;
 }
 
 .option-card i {
@@ -158,10 +194,11 @@ p {
   margin-bottom: 10px;
 }
 
+/* OPTION BUTTON */
 .option-card p {
   margin: 0;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: BOld;
   color: #333;
 }
 
@@ -192,7 +229,7 @@ p {
   color: #064420;
 }
 
-/* Subtitle */
+/* SUB TEXT UNDER HEADING*/
 .subtitle {
   text-align: center;
   font-size: 14px;
@@ -219,6 +256,10 @@ p {
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
+}
+
+#message {
+  height: 100px;
 }
 
 /* Sign Up Button */
@@ -343,107 +384,661 @@ p {
   background-image: transparent;
 }
 
-#arrow {
-  color: black;
+/* Back & Home Buttons */
+.back-btn,
+.home-btn {
+  position: absolute;
+  top: 20px;
+  background: #da8858;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
 }
 
-/* -------------------- GENERAL SETUP -------------------- */
-.signup-body {
-    /* Background color of the whole page */
-    background-color: #f7e9d7; 
-    font-family: 'Roboto', Arial, sans-serif;
-    margin: 0;
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    min-height: 100vh;
+.back-btn:hover,
+.home-btn:hover {
+  background: #fddfbc;
+  color: #333;
 }
 
-/* -------------------- CONTAINER STYLES -------------------- */
-.signup-container {
-    background-color: white;
-    padding: 30px 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 380px; /* Control the form width */
-    text-align: center;
+/* Position home button slightly to the right of back */
+.home-btn {
+  left: 70px;
 }
 
-.title {
-    color: #333;
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 5px;
+.back-btn {
+  left: 20px;
 }
 
-.subtitle {
-    color: #555;
-    margin-top: 0;
-    margin-bottom: 25px;
-    font-size: 0.9em;
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .back-btn,
+  .home-btn {
+    top: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .home-btn {
+    left: 60px;
+  }
+
+  .back-btn {
+    left: 15px;
+  }
 }
 
-/* -------------------- INPUT GROUPS (Straight Alignment) -------------------- */
-
-.input-group {
-    /* Use flexbox for perfect horizontal alignment of label and input */
-    display: flex;
-    flex-direction: row; 
-    align-items: center;
-    margin-bottom: 15px;
-    gap: 10px; /* Space between label and input */
+/* QUERY TEXT */
+#message {
+  width: 100%;
+  min-height: 200px;
+  max-height: 400px;
+  padding: 10px;
+  resize: vertical;
+  overflow-y: auto;
+  font-size: 16px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  background: #fddfbc;
+  border: none;
+}
+#wordCount {
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
 }
 
-.input-group label {
-    /* Sets a fixed width for the labels so the inputs start at the same point */
-    width: 120px; 
-    text-align: left;
-    font-weight: bold;
-    color: #444;
+/* Emergency Numbers*/
+.emergency-card {
+  background: #da8858;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  height: 85px;
+}
+.emergency-card:hover {
+  transform: translateY(-5px);
+  background-color: #fddfbc;
+  box-shadow: 0 4px 12px #e65c00;
 }
 
-.input-group input {
-    /* Makes the input field take up the rest of the available space */
-    flex-grow: 1; 
-    padding: 10px;
-    border: none; /* Remove default border */
-    border-radius: 5px;
-    /* Color matching the image's input fields */
-    background-color: #fcece0; 
-    font-size: 1em;
-    color: #333;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) inset;
-    transition: background-color 0.3s;
+/* PICTURE UPLOAD */
+.upload-section {
+  margin-top: 15px;
 }
 
-/* Ensure password fields are the same size */
-#password, #repeat-password {
-    flex-grow: 1;
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #da8858;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 150px;
+  height: 40px;
+  justify-content: center;
 }
 
-.input-group input:focus {
-    outline: none;
-    background-color: #fff8f2;
-    box-shadow: 0 0 0 2px #d2b48c; /* Subtle focus ring */
+.upload-button:hover {
+  background-color: #fddfbc;
 }
 
-/* -------------------- BUTTON STYLING -------------------- */
-.signup-btn {
-    width: 100%;
-    padding: 12px 20px;
-    margin-top: 20px;
-    background-color: #f7f7f7; /* Light grey/white to match the image */
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, box-shadow 0.3s;
+#image-preview {
+  margin-top: 15px;
+  max-width: 100%;
 }
 
-.signup-btn:hover {
-    background-color: #e0e0e0; /* Subtle hover effect */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+#image-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Submit Button */
+.submit-btn {
+  background-color: #da8858;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #e65c00;
+}
+
+/* Loading spinner */
+.submit-btn.loading {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.submit-btn.loading::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 3px solid white;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success state */
+.submit-btn.success {
+  background-color: #28a745;
+}
+
+.submit-btn.success::after {
+  content: "✔";
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+/* SLEEP OVER STATUS REQUEST */
+
+.status-container {
+  max-width: 500px;
+  width: 90%;
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.status-box {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  transition: all 0.3s ease;
+}
+
+.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.accepted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.declined {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.date-requested {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* --- STARTUP OVERLAY --- */
+.startup-overlay {
+  position: fixed;
+  inset: 0;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  transition: opacity 1s ease;
+}
+
+.startup-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.startup-logo {
+  width: 180px;
+  opacity: 0;
+  animation: logoFadeIn 1.8s ease forwards;
+}
+
+@keyframes logoFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- PAGE FADE IN AFTER STARTUP --- */
+.fade-in {
+  opacity: 0;
+  animation: fadeInContent 1.5s ease forwards;
+  animation-delay: 1.8s;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Home/Exit Button */
+.home-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #da8858;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.home-btn:hover {
+  background: #fddfbc;
+  color: #333;
+}
+
+@media (max-width: 480px) {
+  .home-btn {
+    top: 15px;
+    left: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+}
+
+/* ADMIN SIDE FOR REQUEST LIST BUTTONS */
+.request-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px;
+}
+
+/*  */
+.approve-btn,
+.deny-btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.deny-btn {
+  background-color: #e53935;
+  color: white;
+}
+
+.approve-btn:hover,
+.deny-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ===============================
+   Maintenance Request Page Styles
+   =============================== */
+.request-details p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.image-section {
+  margin: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.feedback-section {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.feedback-section label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.feedback-section textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.feedback-section button {
+  background-color: #da8858;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.feedback-section button:hover {
+  background-color: #c86d3c;
+}
+
+/* ==========================
+   ACCOUNT PAGE
+========================== */
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  background: #fddfbc;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-item i {
+  font-size: 24px;
+  margin-right: 12px;
+  color: #da8858;
+}
+
+.info-item .label {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.info-item p {
+  margin: 0;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.edit-btn,
+.logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #da8858;
+}
+
+.edit-btn:hover {
+  background-color: #c26a3f;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/* ==========================
+   SLEEPOVER VERIFICATION PAGE
+========================== */
+
+.student-info {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  background: #fddfbc;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-item i {
+  font-size: 22px;
+  margin-right: 12px;
+  color: #da8858;
+}
+
+.info-item .label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.info-item p {
+  margin: 0;
+  color: #333;
+}
+
+.request-details {
+  margin-top: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.request-details h4 {
+  margin-bottom: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.approve-btn,
+.deny-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+
+.approve-btn {
+  background-color: #2ecc71;
+}
+
+.approve-btn:hover {
+  background-color: #27ae60;
+}
+
+.deny-btn {
+  background-color: #e74c3c;
+}
+
+.deny-btn:hover {
+  background-color: #c0392b;
+}
+
+/* COME BACK TO THIS!!! */
+.Housebackground {
+  position: absolute; /* Positions image behind other elements */
+  top: 0;
+  left: 0;
+  width: 100%; /* Make it fit container width */
+  height: 100%; /* Make it fit container height */
+  object-fit: cover; /* Ensures the image covers the area properly */
+  opacity: 0.15; /* Makes it transparent so cards are visible */
+  z-index: 0; /* Places the image behind the dashboard content */
+  border-radius: 12px; /* Optional: matches container's shape if rounded */
+}
+.Housebackground {
+  filter: blur(1px);
+  opacity: 0.12;
+}
+
+/* OVERRIDING A FEW ISSUE!! */
+/* === Fix Dashboard Button Click Issues === */
+.dashboard-container {
+  position: relative;
+  z-index: 2; /* make sure it's above overlays */
+}
+
+.option-card,
+.btn,
+button {
+  position: relative;
+  z-index: 3; /* keep buttons on top of anything else */
+  pointer-events: auto; /* ensure clicks go through */
+}
+
+.Housebackground {
+  z-index: 0; /* stays behind content */
+  pointer-events: none; /* prevents it from blocking buttons */
+}
+
+/* STUDENT DETAIL CSS */
+.delete-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #e63939;
+}
+
+/* Confirmation box */
+.confirm-box {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  width: 280px;
+  text-align: center;
+  z-index: 10;
+}
+
+.confirm-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.confirm-yes {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.confirm-no {
+  background: #ccc;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.hidden {
+  display: none;
 }

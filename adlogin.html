@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | RHS-ALRIA </title>
-    <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <div class="Login container">
-           
-            <h2> RHS-ALRIA Login</h2>
-            <p class="Where student needs meet operational efficiency">Enter your credentials to access your account</p>
-        
-         <form class = "form" action="adlogin.html" method="post">
-            
-            <div class="input-group">
-                <label for="email">email</label>
-                <input type="text" id="email" name="email" required>
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2>Admin Login</h2>
+      </div>
 
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+      <p class="subtitle">Login to your account</p>
+      <!-- Login Form -->
+      <form action="addashboard.html" method="get">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
 
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
 
-            <button type="submit" class="login-btn">Login</button>
-            <a href="adsignUp.html" class="nav-btn">
-                Do not have an account? SignUp
-
-        </div>
-    </body>
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <p>Don’t have an account? <a href="signup.html">Sign Up</a></p>
+      <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+  </body>
+  <script src="script.js"></script>
 </html>
