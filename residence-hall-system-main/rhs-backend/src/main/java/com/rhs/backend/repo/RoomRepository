@@ -1,0 +1,10 @@
+package com.rhs.backend.repo;
+
+import com.rhs.backend.model.Room;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.Optional;
+
+public interface RoomRepository extends MongoRepository<Room, String> {
+  Optional<Room> findByCode(String code);
+}

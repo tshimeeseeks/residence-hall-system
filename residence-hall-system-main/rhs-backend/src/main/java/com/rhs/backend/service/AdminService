@@ -1,0 +1,47 @@
+// src/main/java/com/rhs/backend/service/AdminService.java
+package com.rhs.backend.service;
+
+import com.rhs.backend.model.User;
+import com.rhs.backend.repo.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
+
+@Service
+@RequiredArgsConstructor
+public class AdminService {
+
+    private final UserRepository userRepo;
+
+    private final String defaultAdminEmail = "admin@rhs.local";
+    private final String defaultAdminPassword = "AdminPassword123!";
+    private final String defaultAdminFullName = "RHS Admin";
+
+    /**
+     * On application startup, ensure there is exactly one ADMIN user.
+     */
+    @PostConstruct
+    public void ensureAdminExists() {
+        userRepo.findByEmail(defaultAdminEmail).ifPresentOrElse(
+            existing -> {
+                // ensure they are marked as ADMIN and active
+                existing.setRole(User.Role.ADMIN);
+                existing.setActive(true);
+                userRepo.save(existing);
+            },
+            () -> {
+                User admin = new User();
+                admin.setFullName(defaultAdminFullName);
+                admin.setEmail(defaultAdminEmail);
+                admin.setPasswordHash(BCrypt.hashpw(defaultAdminPassword, BCrypt.gensalt()));
+                admin.setRole(User.Role.ADMIN);
+                admin.setActive(true);
+                admin.setRegistrationApproved(true); // not relevant but keeps DTO mapping safe
+
+                userRepo.save(admin);
+            }
+        );
+    }
+}

@@ -1,0 +1,10 @@
+package com.rhs.backend.dto;
+
+import lombok.Data;
+
+@Data
+public class StudentDto extends UserDto {
+  private String studentNumber;
+  private boolean registrationApproved;
+   //private String programme;
+}

@@ -1,0 +1,59 @@
+package com.rhs.backend.service;
+
+import com.rhs.backend.dto.RoomDto;
+import com.rhs.backend.mapper.Mappers;
+import com.rhs.backend.model.Room;
+import com.rhs.backend.repo.RoomRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@Service
+@RequiredArgsConstructor
+public class RoomService {
+  private final RoomRepository roomRepo;
+
+  public RoomDto create(RoomDto req){
+    Room r = new Room();
+    r.setCode(req.getCode());
+    r.setCapacity(req.getCapacity());
+    r.setOccupants(0);
+    return Mappers.toRoomDto(roomRepo.save(r));
+  }
+
+  public List<RoomDto> list(){
+    return roomRepo.findAll().stream().map(Mappers::toRoomDto).toList();
+  }
+
+  public RoomDto one(String id){
+    return roomRepo.findById(id).map(Mappers::toRoomDto)
+      .orElseThrow(() -> new NoSuchElementException("Room not found"));
+  }
+
+  public RoomDto update(String id, RoomDto req){
+    Room r = roomRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Room not found"));
+    if (req.getCode() != null && !req.getCode().isBlank()) r.setCode(req.getCode());
+    if (req.getCapacity() > 0) r.setCapacity(req.getCapacity());
+    return Mappers.toRoomDto(roomRepo.save(r));
+  }
+
+  public void delete(String id){
+    roomRepo.deleteById(id);
+  }
+
+  public RoomDto assign(String id){
+    Room r = roomRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Room not found"));
+    if (r.getOccupants() >= r.getCapacity()) throw new IllegalStateException("Room is full");
+    r.setOccupants(r.getOccupants()+1);
+    return Mappers.toRoomDto(roomRepo.save(r));
+  }
+
+  public RoomDto remove(String id){
+    Room r = roomRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Room not found"));
+    if (r.getOccupants() <= 0) throw new IllegalStateException("No occupants to remove");
+    r.setOccupants(r.getOccupants()-1);
+    return Mappers.toRoomDto(roomRepo.save(r));
+  }
+}

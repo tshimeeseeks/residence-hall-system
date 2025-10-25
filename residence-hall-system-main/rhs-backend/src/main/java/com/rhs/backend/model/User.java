@@ -54,4 +54,6 @@ public class User {
     @LastModifiedDate
     @Field("updated_at")
     private Date updatedAt;
+
+    public enum Role { STUDENT, ADMIN }
 }

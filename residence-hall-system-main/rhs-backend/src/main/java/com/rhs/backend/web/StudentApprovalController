@@ -1,0 +1,38 @@
+package com.rhs.backend.web;
+
+import com.rhs.backend.dto.ApiResponse;
+import com.rhs.backend.dto.StudentDto;
+import com.rhs.backend.service.EmailService;
+import com.rhs.backend.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/students")
+@RequiredArgsConstructor
+public class StudentApprovalController {
+
+  private final UserService userService;
+  private final EmailService emailService;
+
+  @GetMapping("/pending-registrations")
+  public ApiResponse<List<StudentDto>> pending(){
+    return ApiResponse.ok(userService.pendingStudents());
+  }
+
+  @PutMapping("/approve/{id}")
+  public ApiResponse<StudentDto> approve(@PathVariable String id){
+    var dto = userService.approve(id);
+    emailService.send(dto.getEmail(), "Registration Approved", "Welcome! Your registration has been approved.");
+    return ApiResponse.ok("Approved", dto);
+  }
+
+  @PutMapping("/reject/{id}")
+  public ApiResponse<StudentDto> reject(@PathVariable String id){
+    var dto = userService.reject(id);
+    emailService.send(dto.getEmail(), "Registration Rejected", "Unfortunately your registration was rejected.");
+    return ApiResponse.ok("Rejected", dto);
+  }
+}

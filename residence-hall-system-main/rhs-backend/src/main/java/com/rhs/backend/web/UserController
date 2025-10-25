@@ -1,0 +1,43 @@
+package com.rhs.backend.web;
+
+import com.rhs.backend.dto.*;
+import com.rhs.backend.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/users")
+@RequiredArgsConstructor
+public class UserController {
+
+  private final UserService userService;
+
+  @PostMapping("/register")
+  public ApiResponse<StudentDto> register(@Valid @RequestBody RegisterUserRequest req){
+    return ApiResponse.ok("Registered (pending approval)", userService.registerStudent(req));
+  }
+
+  @PostMapping("/login")
+  public ApiResponse<Map<String,Object>> login(@Valid @RequestBody LoginRequest req){
+    return ApiResponse.ok(userService.login(req));
+  }
+
+  @GetMapping
+  public ApiResponse<?> list(@RequestParam(value="q", required=false) String q){
+    return ApiResponse.ok(userService.listUsers(q));
+  }
+
+  @GetMapping("/{id}")
+  public ApiResponse<?> one(@PathVariable String id){
+    return ApiResponse.ok(userService.one(id));
+  }
+
+  @DeleteMapping("/{id}")
+  public ApiResponse<?> delete(@PathVariable String id){
+    userService.delete(id);
+    return ApiResponse.ok("Deleted", null);
+  }
+}

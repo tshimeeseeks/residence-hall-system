@@ -1,0 +1,56 @@
+package com.rhs.backend.service;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
+
+/**
+ * Handles all outgoing emails (approval, rejection, notifications).
+ * Students can register with any valid email address.
+ */
+@Service
+@RequiredArgsConstructor
+public class EmailService {
+
+    private final JavaMailSender mailSender;
+
+    @Value("${app.mail.enabled:true}")
+    private boolean mailEnabled;
+
+    @Value("${app.mail.from:no-reply@rhs-alira.local}")
+    private String defaultFrom;
+    
+    public void send(String to, String subject, String htmlBody) {
+        if (!mailEnabled) {
+            System.out.printf("[Email Disabled] to=%s | subject=%s | body=%s%n", to, subject, htmlBody);
+            return;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            helper.setFrom(defaultFrom);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            mailSender.send(message);
+
+            System.out.println("Email sent to " + to + " with subject: " + subject);
+        } catch (MessagingException e) {
+            System.err.println("Email failed: " + e.getMessage());
+        }
+    }
+
+    public void sendText(String to, String subject, String textBody) {
+        String html = "<pre style=\"font-family:inherit;white-space:pre-wrap;\">"
+                + escapeHtml(textBody) + "</pre>";
+        send(to, subject, html);
+    }
+
+    private String escapeHtml(String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+}

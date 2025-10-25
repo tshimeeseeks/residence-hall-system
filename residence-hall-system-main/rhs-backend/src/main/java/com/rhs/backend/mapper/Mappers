@@ -1,0 +1,38 @@
+package com.rhs.backend.mapper;
+
+import com.rhs.backend.dto.*;
+import com.rhs.backend.model.*;
+
+public class Mappers {
+  public static UserDto toUserDto(User u){
+    UserDto d = new UserDto();
+    d.setId(u.getId());
+    d.setFullName(u.getFullName());
+    d.setEmail(u.getEmail());
+    d.setRole(u.getRole() != null ? u.getRole().name() : null);
+    d.setActive(u.isActive());
+    return d;
+  }
+
+  public static StudentDto toStudentDto(User s){
+    StudentDto d = new StudentDto();
+    d.setId(s.getId());
+    d.setFullName(s.getFullName());
+    d.setEmail(s.getEmail());
+    d.setRole(s.getRole() != null ? s.getRole().name() : null);
+    d.setActive(s.isActive());
+    d.setStudentNumber(s.getStudentNumber());
+    d.setProgramme(s.getProgramme());
+    d.setRegistrationApproved(Boolean.TRUE.equals(s.getRegistrationApproved()));
+    return d;
+  }
+
+  public static RoomDto toRoomDto(Room r){
+    RoomDto d = new RoomDto();
+    d.setId(r.getId());
+    d.setCode(r.getCode());
+    d.setCapacity(r.getCapacity());
+    d.setOccupants(r.getOccupants());
+    return d;
+  }
+}

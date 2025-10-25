@@ -1,0 +1,83 @@
+package com.rhs.backend.service;
+
+import com.rhs.backend.dto.*;
+import com.rhs.backend.mapper.Mappers;
+import com.rhs.backend.model.User;
+import com.rhs.backend.repo.UserRepository;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+  private final UserRepository userRepo;
+
+  public StudentDto registerStudent(@Valid RegisterUserRequest req){
+    userRepo.findByEmail(req.getEmail()).ifPresent(u -> {
+      throw new IllegalArgumentException("Email already in use");
+    });
+
+    User s = new User();
+    s.setFullName(req.getFullName());
+    s.setEmail(req.getEmail());
+    s.setPasswordHash(BCrypt.hashpw(req.getPassword(), BCrypt.gensalt()));
+    s.setRole(User.Role.STUDENT);
+    s.setActive(true);
+    s.setStudentNumber(req.getStudentNumber());
+    s.setProgramme(req.getProgramme());
+    s.setRegistrationApproved(Boolean.FALSE); // pending
+    return Mappers.toStudentDto(userRepo.save(s));
+  }
+
+  public Map<String, Object> login(@Valid LoginRequest req){
+    User user = userRepo.findByEmail(req.getEmail())
+      .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+    if (!BCrypt.checkpw(req.getPassword(), user.getPasswordHash()))
+      throw new IllegalArgumentException("Invalid credentials");
+
+    // Fake token for now (front-end stores it)
+    return Map.of("token", UUID.randomUUID().toString(),
+                  "user", Mappers.toUserDto(user));
+  }
+
+  public List<UserDto> listUsers(String q){
+    var list = (q == null || q.isBlank()) ? userRepo.findAll() : userRepo.search(q);
+    return list.stream().map(Mappers::toUserDto).toList();
+  }
+
+  public UserDto one(String id){
+    return userRepo.findById(id).map(Mappers::toUserDto)
+      .orElseThrow(() -> new NoSuchElementException("User not found"));
+  }
+
+  public void delete(String id){
+    userRepo.deleteById(id);
+  }
+
+  public List<StudentDto> pendingStudents(){
+    // Optionally filter for role=STUDENT too
+    return userRepo.findByRegistrationApprovedFalse().stream()
+      .filter(u -> u.getRole() == User.Role.STUDENT)
+      .map(Mappers::toStudentDto)
+      .toList();
+  }
+
+  public StudentDto approve(String id){
+    User s = userRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Student not found"));
+    if (s.getRole() != User.Role.STUDENT) throw new IllegalArgumentException("Not a student");
+    s.setRegistrationApproved(true);
+    return Mappers.toStudentDto(userRepo.save(s));
+  }
+
+  public StudentDto reject(String id){
+    User s = userRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Student not found"));
+    if (s.getRole() != User.Role.STUDENT) throw new IllegalArgumentException("Not a student");
+    s.setRegistrationApproved(false);
+    return Mappers.toStudentDto(userRepo.save(s));
+  }
+}
