@@ -8,7 +8,9 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.rhs.backend.model.embedded.AdminPermissions;
+import com.rhs.backend.model.embedded.RoomDetails;
+
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Document(collection = "users")
 @Data
@@ -16,11 +18,18 @@ import com.rhs.backend.model.embedded.AdminPermissions;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class Admin extends User {
+public class Student extends User {
 
-    @Field("admin_permissions")
-    private AdminPermissions adminPermissions; // Master Admin, Standard Admin
+    @Field("student_number")
+    @Indexed(unique = true)
+    private String studentNumber;
 
-    @Field("department")
-    private String department; // Maintenance, Clerk
+    @Field("room_details")
+    private RoomDetails roomDetails;
+
+    @Field("course")
+    private String course;
+
+    @Field("year_of_study")
+    private Integer yearOfStudy;
 }
