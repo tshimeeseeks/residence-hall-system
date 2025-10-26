@@ -1,71 +1,37 @@
 package com.rhs.backend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import lombok.*;
+import org.bson.types.ObjectId;
 
-import com.rhs.backend.model.enums.QueryStatus;
+import com.rhs.backend.model.enums.PriorityLevel;
+import com.rhs.backend.model.enums.Status;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.index.Indexed;
-
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-@Document(collection = "maintenance_queries")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class MaintenanceQuery {
-    @Id
-    private String id;
+    private String id; // optional for updates
 
-    @DBRef
-    @Field("student")
-    private Student student;
+    @NotNull
+    private String studentId;
 
-    @Field("room_id")
-    @Indexed
+    @NotNull
     private String roomId;
 
-    @Field("query_title")
-    private String queryTitle;
+    @NotBlank
+    private String issueType;
 
-    @Field("query_description")
-    private String queryDescription;
+    private String description;
 
-    @Field("photo_urls")
-    private List<String> photoUrls;
+    @NotNull
+    private PriorityLevel priority;
 
-    @Field("status")
-    @Indexed
-    private QueryStatus status;
+    private Status status;
 
-    @Field("priority")
-    private String priority;
-
-    @DBRef
-    @Field("assigned_to")
-    private Admin assignedTo;
-
-    @Field("resolution_notes")
-    private String resolutionNotes;
-
-    @Field("resolved_at")
-    private LocalDateTime resolvedAt;
-
-    @CreatedDate
-    @Field("created_at")
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Field("updated_at")
-    private LocalDateTime updatedAt;
+    private List<String> photos;
 }

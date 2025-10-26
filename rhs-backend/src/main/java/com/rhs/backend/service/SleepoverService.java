@@ -1,7 +1,7 @@
 package com.rhs.backend.service;
 
-import com.rhs.backend.model.ApprovalStatus;
-import com.rhs.backend.model.SleepoverPass;
+import com.rhs.backend.model.enums.AccountStatus;
+import com.rhs.backend.model.SleepOverPass;
 import com.rhs.backend.model.Visitor;
 import com.rhs.backend.repository.SleepoverPassRepository;
 import com.rhs.backend.repository.VisitorRepository;
@@ -13,18 +13,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SleepoverService {
+public class SleepOverService {
 
     private final SleepoverPassRepository sleepoverPassRepository;
     private final VisitorRepository visitorRepository;
 
     @Autowired
-    public SleepoverService(SleepoverPassRepository sleepoverPassRepository, VisitorRepository visitorRepository) {
+    public SleepOverService(SleepoverPassRepository sleepoverPassRepository, VisitorRepository visitorRepository) {
         this.sleepoverPassRepository = sleepoverPassRepository;
         this.visitorRepository = visitorRepository;
     }
 
-    public SleepoverPass createSleepoverPass(SleepoverPass sleepoverPass) throws Exception {
+    public SleepOverPass createSleepoverPass(SleepOverPass sleepoverPass) throws Exception {
         if (isGuestBlacklisted(sleepoverPass.getVisitor())) {
             throw new Exception("Guest is blacklisted.");
         }
@@ -35,10 +35,10 @@ public class SleepoverService {
         return sleepoverPassRepository.save(sleepoverPass);
     }
 
-    public SleepoverPass reviewSleepoverPass(String id, ApprovalStatus status) throws Exception {
-        Optional<SleepoverPass> optionalSleepoverPass = sleepoverPassRepository.findById(id);
+    public SleepOverPass reviewSleepoverPass(String id, AccountStatus status) throws Exception {
+        Optional<SleepOverPass> optionalSleepoverPass = sleepoverPassRepository.findById(id);
         if (optionalSleepoverPass.isPresent()) {
-            SleepoverPass sleepoverPass = optionalSleepoverPass.get();
+            SleepOverPass sleepoverPass = optionalSleepoverPass.get();
             sleepoverPass.setStatus(status);
             return sleepoverPassRepository.save(sleepoverPass);
         } else {
@@ -46,12 +46,13 @@ public class SleepoverService {
         }
     }
 
-    private boolean hasDateConflict(SleepoverPass newPass) {
-        List<SleepoverPass> existingPasses = sleepoverPassRepository.findAll();
-        for (SleepoverPass existingPass : existingPasses) {
+    private boolean hasDateConflict(SleepOverPass newPass) {
+        List<SleepOverPass> existingPasses = sleepoverPassRepository.findAll();
+        for (SleepOverPass existingPass : existingPasses) {
             if (existingPass.getApplicantId().equals(newPass.getApplicantId()) &&
-                    !existingPass.getStatus().equals(ApprovalStatus.DENIED) &&
-                    (newPass.getStartDate().isBefore(existingPass.getEndDate()) && newPass.getEndDate().isAfter(existingPass.getStartDate()))) {
+                    !existingPass.getStatus().equals(AccountStatus.REJECTED) &&
+                    (newPass.getStartDate().isBefore(existingPass.getEndDate())
+                            && newPass.getEndDate().isAfter(existingPass.getStartDate()))) {
                 return true;
             }
         }
@@ -64,17 +65,17 @@ public class SleepoverService {
         return "BLACKLISTED_ID".equals(visitor.getIdNumber());
     }
 
-    public List<SleepoverPass> getMySleepoverPasses(String applicantId) {
+    public List<SleepOverPass> getMySleepoverPasses(String applicantId) {
         return sleepoverPassRepository.findAll().stream()
                 .filter(pass -> pass.getApplicantId().equals(applicantId))
                 .toList();
     }
 
-    public List<SleepoverPass> getAllSleepoverPasses() {
+    public List<SleepOverPass> getAllSleepoverPasses() {
         return sleepoverPassRepository.findAll();
     }
 
-    public Optional<SleepoverPass> getSleepoverPassById(String id) {
+    public Optional<SleepOverPass> getSleepoverPassById(String id) {
         return sleepoverPassRepository.findById(id);
     }
 }

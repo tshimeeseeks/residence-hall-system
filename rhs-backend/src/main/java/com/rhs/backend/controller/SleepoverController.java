@@ -1,8 +1,8 @@
 package com.rhs.backend.controller;
 
-import com.rhs.backend.model.ApprovalStatus;
-import com.rhs.backend.model.SleepoverPass;
-import com.rhs.backend.service.SleepoverService;
+import com.rhs.backend.model.enums.AccountStatus;
+import com.rhs.backend.model.SleepOverPass;
+import com.rhs.backend.service.SleepOverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,19 +11,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sleepover/applications")
-public class SleepoverController {
+public class SleepOverController {
 
-    private final SleepoverService sleepoverService;
+    private final SleepOverService sleepoverService;
 
     @Autowired
-    public SleepoverController(SleepoverService sleepoverService) {
+    public SleepOverController(SleepOverService sleepoverService) {
         this.sleepoverService = sleepoverService;
     }
 
     @PostMapping
-    public ResponseEntity<SleepoverPass> createSleepoverPass(@RequestBody SleepoverPass sleepoverPass) {
+    public ResponseEntity<SleepOverPass> createSleepoverPass(@RequestBody SleepOverPass sleepoverPass) {
         try {
-            SleepoverPass createdPass = sleepoverService.createSleepoverPass(sleepoverPass);
+            SleepOverPass createdPass = sleepoverService.createSleepoverPass(sleepoverPass);
             return ResponseEntity.ok(createdPass);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
@@ -31,26 +31,27 @@ public class SleepoverController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<SleepoverPass>> getMySleepoverPasses(@RequestParam String applicantId) {
+    public ResponseEntity<List<SleepOverPass>> getMySleepoverPasses(@RequestParam String applicantId) {
         return ResponseEntity.ok(sleepoverService.getMySleepoverPasses(applicantId));
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<SleepoverPass>> getAllSleepoverPasses() {
+    public ResponseEntity<List<SleepOverPass>> getAllSleepoverPasses() {
         return ResponseEntity.ok(sleepoverService.getAllSleepoverPasses());
     }
 
     @GetMapping("/{applicationId}")
-    public ResponseEntity<SleepoverPass> getSleepoverPassById(@PathVariable String applicationId) {
+    public ResponseEntity<SleepOverPass> getSleepoverPassById(@PathVariable String applicationId) {
         return sleepoverService.getSleepoverPassById(applicationId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{applicationId}/review")
-    public ResponseEntity<SleepoverPass> reviewSleepoverPass(@PathVariable String applicationId, @RequestParam ApprovalStatus status) {
+    public ResponseEntity<SleepOverPass> reviewSleepoverPass(@PathVariable String applicationId,
+            @RequestParam AccountStatus status) {
         try {
-            SleepoverPass reviewedPass = sleepoverService.reviewSleepoverPass(applicationId, status);
+            SleepOverPass reviewedPass = sleepoverService.reviewSleepoverPass(applicationId, status);
             return ResponseEntity.ok(reviewedPass);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

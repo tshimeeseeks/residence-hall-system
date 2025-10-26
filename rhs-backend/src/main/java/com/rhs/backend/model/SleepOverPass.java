@@ -4,10 +4,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.rhs.backend.model.enums.AccountStatus;
+
 import java.time.LocalDate;
 
 @Document(collection = "sleepover_passes")
-public class SleepoverPass {
+public class SleepOverPass {
     @Id
     private String id;
     private String applicantId;
@@ -15,7 +17,7 @@ public class SleepoverPass {
     private Visitor visitor;
     private LocalDate startDate;
     private LocalDate endDate;
-    private ApprovalStatus status;
+    private AccountStatus status;
 
     // Getters and Setters
     public String getId() {
@@ -58,11 +60,11 @@ public class SleepoverPass {
         this.endDate = endDate;
     }
 
-    public ApprovalStatus getStatus() {
+    public AccountStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ApprovalStatus status) {
+    public void setStatus(AccountStatus status) {
         this.status = status;
     }
 }
