@@ -1,5 +1,6 @@
-package com.rhs.backend.model;
+package com.rhs.backend.dto;
 
+import com.rhs.backend.model.Admin;
 import com.rhs.backend.model.enums.QueryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,8 +41,9 @@ public class MaintenanceQueryDTO {
 
     private String priority;
 
-    // Admin reference (using ID instead of full object)
+    // Admin reference (using ID or full object)
     private String assignedToId;
+    private Admin assignedTo;
 
     // Admin details for display (optional, populated on read)
     private String assignedToName;
