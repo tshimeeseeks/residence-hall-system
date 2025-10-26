@@ -14,7 +14,7 @@ import java.util.List;
  * Repository for MaintenanceQuery operations
  */
 @Repository
-public interface MaintenanceQueryRepository extends MongoRepository<MaintenanceQuery, String> {
+public interface MaintenanceRepository extends MongoRepository<MaintenanceQuery, String> {
 
     /**
      * Find all queries by student
