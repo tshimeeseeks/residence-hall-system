@@ -22,7 +22,7 @@ public class SleepOverService {
      * Create a new sleepover pass application
      */
     @Transactional
-    public SleepOverPass createSleepoverPass(SleepOverPass sleepoverPass) {
+    public SleepOverPass createSleepOverPass(SleepOverPass sleepoverPass) {
         // Check if guest is blacklisted
         if (isGuestBlacklisted(sleepoverPass.getVisitor())) {
             throw new RuntimeException("Guest is blacklisted and cannot be approved for a sleepover pass");

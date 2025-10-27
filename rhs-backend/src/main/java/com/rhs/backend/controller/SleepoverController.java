@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/sleepover-passes")
 @RequiredArgsConstructor
-public class SleepOverController {
+public class SleepoverController {
 
     private final SleepOverService sleepoverService;
 
