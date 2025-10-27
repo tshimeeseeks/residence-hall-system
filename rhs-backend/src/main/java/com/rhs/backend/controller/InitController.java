@@ -88,6 +88,39 @@ public class InitController {
         }
     }
 
+    @PostMapping("/set-admin-claim")
+    public ResponseEntity<?> setAdminClaim(@RequestParam String email) {
+        try {
+            // Find user in MongoDB
+            Optional<Admin> adminOpt = adminRepository.findByEmail(email);
+            if (adminOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("error", "Admin not found in database"));
+            }
+
+            Admin admin = adminOpt.get();
+            String firebaseUid = admin.getFirebaseUid();
+
+            // Set custom claims in Firebase
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("admin", true);
+            firebaseAuth.setCustomUserClaims(firebaseUid, claims);
+
+            log.info("Admin custom claim set for user: {}", email);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Admin claim set successfully",
+                    "email", email,
+                    "firebaseUid", firebaseUid,
+                    "note", "User must log out and log back in for changes to take effect"));
+
+        } catch (FirebaseAuthException e) {
+            log.error("Error setting admin claim", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", "Firebase error: " + e.getMessage()));
+        }
+    }
+
     /**
      * Health check endpoint
      */
