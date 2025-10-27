@@ -1,51 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <title>Sign Up</title>
+    <title>Student Sign Up</title>
     <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
     <div class="form-container">
-      <!-- Header -->
-      <div class="form-header">
-        <button class="back-btn" onclick="goBack()">
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2>User Sign Up</h2>
-      </div>
+        <div class="form-header">
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Student Registration</h2>
+        </div>
+        <p class="subtitle">Create your student account</p>
 
-      <!-- Subtitle -->
-      <p class="subtitle">Create an account</p>
+        <form id="signupForm">
+            <h3>Personal Information</h3>
+            
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" required placeholder="Enter your first name" />
 
-      <!-- Form -->
-      <form action="login.html" method="get" class="signup-form">
-        <label>Enter Name</label>
-        <input type="text" placeholder="Name..." required />
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" required placeholder="Enter your last name" />
 
-        <label>Enter Surname</label>
-        <input type="text" placeholder="Surname..." required />
+            <label for="email">Email Address</label>
+            <input type="email" id="email" required placeholder="student@example.com" />
 
-        <label>Enter Student Number</label>
-        <input type="text" placeholder="Ex: ST123455..." required />
+            <label for="studentNumber">Student Number</label>
+            <input type="text" id="studentNumber" required placeholder="e.g., ST12345678" />
 
-        <label>Enter Email</label>
-        <input type="email" placeholder="Ex: email@gmail.com..." required />
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" id="phoneNumber" required placeholder="+27 71 234 5678" />
 
-        <label>Create Password</label>
-        <input type="password" placeholder="********" required />
+            <h3>Academic Information</h3>
 
-        <label>Repeat Password</label>
-        <input type="password" placeholder="********" required />
+            <label for="course">Course/Program</label>
+            <input type="text" id="course" required placeholder="e.g., Computer Science" />
 
-        <button type="submit" class="btn signup-btn">Sign Up</button>
-      </form>
-      <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+            <label for="yearOfStudy">Year of Study</label>
+            <select id="yearOfStudy" required>
+                <option value="">Select Year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+                <option value="5">5th Year+</option>
+            </select>
+
+            <h3>Account Security</h3>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" required placeholder="At least 6 characters" />
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" required placeholder="Re-enter password" />
+
+            <div style="margin: 15px 0;">
+                <input type="checkbox" id="terms" required />
+                <label for="terms" style="display: inline; font-weight: normal;">
+                    I agree to the residence hall terms and conditions
+                </label>
+            </div>
+
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+
+        <p>Already have an account? <a href="login.html">Login</a></p>
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
     </div>
-  </body>
-  <script src="script.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate passwords match
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+
+            try {
+                const email = document.getElementById('email').value;
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const studentNumber = document.getElementById('studentNumber').value;
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                const course = document.getElementById('course').value;
+                const yearOfStudy = parseInt(document.getElementById('yearOfStudy').value);
+
+                // Step 1: Create Firebase user
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                console.log('Firebase user created:', user.uid);
+
+                // Step 2: Get Firebase token
+                const token = await user.getIdToken();
+
+                // Step 3: Register with backend
+                const signupData = {
+                    firebaseUid: user.uid,
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    studentNumber: studentNumber,
+                    phoneNumber: phoneNumber,
+                    course: course,
+                    yearOfStudy: yearOfStudy
+                };
+
+                const response = await fetch(API_ENDPOINTS.STUDENT.SIGNUP, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(signupData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || errorData.message || 'Registration failed');
+                }
+
+                const result = await response.json();
+                console.log('Backend registration successful:', result);
+
+                // Success!
+                alert('Account created successfully! Please wait for admin approval. You will receive an email once your account is approved.');
+                
+                // Sign out and redirect to login
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+
+            } catch (error) {
+                console.error('Signup error:', error);
+                
+                let errorMessage = 'Registration failed: ';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage += 'This email is already registered.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage += 'Invalid email address.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage += 'Password is too weak.';
+                } else {
+                    errorMessage += error.message;
+                }
+
+                alert(errorMessage);
+                submitBtn.textContent = 'Sign Up';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
 </html>

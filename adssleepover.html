@@ -1,42 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sleepover Requests</title>
+    <title>Admin - Sleepover Management</title>
     <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <div class="dashboard-container">
-      <div class="header">
-        <button class="back-btn" onclick="goBack()">
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
-        <h2>Sleepover Requests</h2>
-      </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Sleepover Pass Management</h2>
+        </div>
 
-      <div class="request-list">
-        <!-- These would come dynamically later -->
-        <button class="btn" onclick="goToVerify('John Doe','sleepover')">
-          John Doe
-        </button>
-        <button class="btn" onclick="goToVerify('Jane Smith','sleepover')">
-          Jane Smith
-        </button>
-        <button class="btn" onclick="goToVerify('Alex Brown','sleepover')">
-          Alex Brown
-        </button>
-        <button class="btn" onclick="goToVerify('Sarah Lee','sleepover')">
-          Sarah Lee
-        </button>
-      </div>
+        <!-- Filter -->
+        <div style="margin-bottom: 20px;">
+            <select id="statusFilter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+            </select>
+        </div>
+
+        <div id="loadingMessage">Loading sleepover requests...</div>
+        <div id="passesList" style="display: none;"></div>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
     </div>
 
-    <script src="script.js"></script>
-  </body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        let allPasses = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(true); // Admin only
+            loadAllPasses();
+            document.getElementById('statusFilter').addEventListener('change', filterPasses);
+        });
+
+        async function loadAllPasses() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.SLEEPOVER.GET_ALL);
+                allPasses = await response.json();
+
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('passesList').style.display = 'block';
+                displayPasses(allPasses);
+            } catch (error) {
+                console.error('Error loading passes:', error);
+                document.getElementById('loadingMessage').textContent = 
+                    'Error loading passes: ' + error.message;
+            }
+        }
+
+        function filterPasses() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const filtered = statusFilter 
+                ? allPasses.filter(pass => pass.status === statusFilter)
+                : allPasses;
+            displayPasses(filtered);
+        }
+
+        function displayPasses(passes) {
+            const container = document.getElementById('passesList');
+            container.innerHTML = '';
+
+            passes.forEach(pass => {
+                const statusColors = {
+                    'PENDING': '#FFA500',
+                    'APPROVED': '#4CAF50',
+                    'REJECTED': '#F44336'
+                };
+
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background: white;
+                `;
+
+                const checkIn = new Date(pass.checkInDateTime);
+                const checkOut = new Date(pass.checkOutDateTime);
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 5px 0;">Guest: ${pass.guestName}</h3>
+                            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                                Student: ${pass.studentName} | Room: ${pass.roomNumber || 'N/A'}
+                            </p>
+                            <div style="font-size: 13px; color: #888; margin-top: 10px; line-height: 1.8;">
+                                <p><i class="fas fa-id-card"></i> ${pass.guestIdNumber}</p>
+                                <p><i class="fas fa-phone"></i> ${pass.guestPhoneNumber}</p>
+                                <p><i class="fas fa-sign-in-alt"></i> ${checkIn.toLocaleString()}</p>
+                                <p><i class="fas fa-sign-out-alt"></i> ${checkOut.toLocaleString()}</p>
+                                <p><i class="fas fa-users"></i> ${pass.relationship}</p>
+                                <p><i class="fas fa-info-circle"></i> ${pass.reason}</p>
+                            </div>
+                            ${pass.guestIdDocumentUrl ? `
+                                <a href="${pass.guestIdDocumentUrl}" target="_blank" style="color: #2196F3; text-decoration: none; font-size: 13px;">
+                                    <i class="fas fa-file"></i> View ID Document
+                                </a>
+                            ` : ''}
+                        </div>
+                        <div style="text-align: right; margin-left: 20px;">
+                            <span style="background: ${statusColors[pass.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-bottom: 10px;">
+                                ${pass.status}
+                            </span>
+                            ${pass.status === 'PENDING' ? `
+                                <button onclick="approvePass('${pass.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px; background: #4CAF50;">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button onclick="rejectPass('${pass.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px; background: #F44336;">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (passes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px;">No passes found.</p>';
+            }
+        }
+
+        async function approvePass(passId) {
+            if (!confirm('Approve this sleepover pass?')) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.SLEEPOVER.APPROVE(passId), {
+                    method: 'PUT',
+                    body: JSON.stringify({ adminNotes: 'Approved' })
+                });
+
+                alert('Pass approved successfully!');
+                loadAllPasses();
+            } catch (error) {
+                console.error('Error approving pass:', error);
+                alert('Failed to approve pass: ' + error.message);
+            }
+        }
+
+        async function rejectPass(passId) {
+            const reason = prompt('Enter reason for rejection:');
+            if (!reason) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.SLEEPOVER.REJECT(passId), {
+                    method: 'PUT',
+                    body: JSON.stringify({ adminNotes: reason })
+                });
+
+                alert('Pass rejected.');
+                loadAllPasses();
+            } catch (error) {
+                console.error('Error rejecting pass:', error);
+                alert('Failed to reject pass: ' + error.message);
+            }
+        }
+    </script>
+</body>
 </html>

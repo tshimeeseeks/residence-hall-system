@@ -1,49 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add New Student</title>
     <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body>
-   <div class="dashboard-container">
-      <div class="form-header">
-        <button class="back-btn" onclick="goBack()">
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <h2><i class="fas fa-student"></i>Add Student</h2>
-      </div>
-      <p class="subtitle">Add New Student</p>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Add New Student</h2>
+        </div>
+        <p class="subtitle">Create a new student account</p>
 
-      <form class="addstudent-form">
-        <label for="student-info">Student Name</label>
-        <input type="text" id="student-info" placeholder="Enter Student Name" />
+        <form id="createStudentForm">
+            <h3>Personal Information</h3>
+            
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" required />
 
-        <label for="student-info">Student Surname</label>
-        <input type="text" id="student-info" placeholder="Enter Student Surname" />
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" required />
 
-        <label for="student-info">Student Number</label>
-        <input type="text" id="student-info" placeholder="Enter Student Number" />
+            <label for="email">Email Address</label>
+            <input type="email" id="email" required />
 
-        <label for="student-info">Phone Number</label>
-        <input type="text" id="student-info" placeholder="Enter Phone Number" />
-        
-        <label for="student-info">Room Number</label>
-        <input type="text" id="student-info" placeholder="Enter Room Number" />
-        
-        <label for="student-info">Student Password</label>
-        <input type="password" id="student-info" placeholder="Enter Password" />
-        
+            <label for="studentNumber">Student Number</label>
+            <input type="text" id="studentNumber" required />
 
-        <button class="submit-btn" onclick="simulateSubmit(this)">Add</button>
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" id="phoneNumber" required />
 
+            <h3>Academic Information</h3>
 
-    <!-- External JS File -->
-    <script src="script.js"></script>
-  </body>
+            <label for="course">Course/Program</label>
+            <input type="text" id="course" required />
+
+            <label for="yearOfStudy">Year of Study</label>
+            <select id="yearOfStudy" required>
+                <option value="">Select Year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+                <option value="5">5th Year+</option>
+            </select>
+
+            <h3>Room Assignment</h3>
+
+            <label for="roomId">Room Number</label>
+            <select id="roomId" required>
+                <option value="">Loading rooms...</option>
+            </select>
+
+            <h3>Account Setup</h3>
+
+            <label for="password">Temporary Password</label>
+            <input type="password" id="password" required placeholder="Min 6 characters" />
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" required />
+
+            <div style="margin: 15px 0;">
+                <input type="checkbox" id="autoApprove" checked />
+                <label for="autoApprove" style="display: inline; font-weight: normal;">
+                    Auto-approve account (recommended)
+                </label>
+            </div>
+
+            <button type="submit" class="btn">Create Student Account</button>
+        </form>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(true); // Admin only
+            loadAvailableRooms();
+        });
+
+        async function loadAvailableRooms() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.ROOM.GET_AVAILABLE);
+                const rooms = await response.json();
+
+                const roomSelect = document.getElementById('roomId');
+                roomSelect.innerHTML = '<option value="">Select Room</option>';
+
+                rooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id;
+                    option.textContent = `Room ${room.roomNumber} - ${room.building} (Floor ${room.floor}) - ${room.availableSpaces} spaces available`;
+                    roomSelect.appendChild(option);
+                });
+
+                if (rooms.length === 0) {
+                    roomSelect.innerHTML = '<option value="">No available rooms</option>';
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                document.getElementById('roomId').innerHTML = '<option value="">Error loading rooms</option>';
+            }
+        }
+
+        document.getElementById('createStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate passwords
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+
+            try {
+                const email = document.getElementById('email').value;
+
+                // Step 1: Create Firebase account
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                const firebaseUser = userCredential.user;
+
+                console.log('Firebase user created:', firebaseUser.uid);
+
+                // Step 2: Sign out immediately (admin stays logged in)
+                await firebase.auth().signOut();
+
+                // Step 3: Re-authenticate as admin
+                // (The admin will be prompted to log back in if needed)
+
+                // Step 4: Create student in backend
+                const studentData = {
+                    firebaseUid: firebaseUser.uid,
+                    email: email,
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    studentNumber: document.getElementById('studentNumber').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    course: document.getElementById('course').value,
+                    yearOfStudy: parseInt(document.getElementById('yearOfStudy').value),
+                    roomId: document.getElementById('roomId').value,
+                    accountStatus: document.getElementById('autoApprove').checked ? 'ACTIVE' : 'PENDING'
+                };
+
+                const response = await apiCall(API_ENDPOINTS.ADMIN_STUDENT.CREATE, {
+                    method: 'POST',
+                    body: JSON.stringify(studentData)
+                });
+
+                const result = await response.json();
+                console.log('Student created in backend:', result);
+
+                alert(`Student account created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials with the student.`);
+                
+                // Reset form
+                e.target.reset();
+                submitBtn.textContent = 'Create Student Account';
+                submitBtn.disabled = false;
+                
+                // Reload rooms
+                loadAvailableRooms();
+
+            } catch (error) {
+                console.error('Error creating student:', error);
+                
+                let errorMessage = 'Failed to create student: ';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage += 'This email is already registered.';
+                } else {
+                    errorMessage += error.message;
+                }
+
+                alert(errorMessage);
+                submitBtn.textContent = 'Create Student Account';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
 </html>

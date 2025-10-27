@@ -1,48 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Maintenance Status</title>
     <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
     <div class="form-container">
-      <button class="back-btn" onclick="goBack()">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
-      <div class="status-card">
-        <div class="status-header">
-          <h2>
-            <i class="fa-solid fa-helmet-safety"></></i>Maintenance Status
-          </h2>
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>My Maintenance Requests</h2>
         </div>
 
-        <div class="status-box">
-          <p>
-            <strong>Status:</strong> <span class="status pending">Pending</span>
-          </p>
-          <!-- Options: status fixed | pending | investigation -->
+        <div id="loadingMessage">Loading your requests...</div>
+        <div id="requestsList" style="display: none;"></div>
+        <div id="emptyMessage" style="display: none; text-align: center; padding: 20px;">
+            <p>No maintenance requests yet.</p>
+            <a href="maintanacerequest.html" class="btn">Create New Request</a>
         </div>
 
-        <div class="date-box">
-          <p><strong>Date Requested:</strong> October 6, 2025</p>
-        </div>
-
-        <div class="image-box">
-          <p><strong>Uploaded Image:</strong></p>
-          <img
-            src="https://via.placeholder.com/350x200.png?text=Uploaded+Issue+Image"
-            alt="Uploaded issue image"
-          />
-        </div>
-      </div>
-       <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
     </div>
-    <script src="script.js"></script>
-  </body>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(false);
+            loadMaintenanceRequests();
+        });
+
+        async function loadMaintenanceRequests() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.MAINTENANCE.GET_MY);
+                const requests = await response.json();
+
+                const loadingMsg = document.getElementById('loadingMessage');
+                const requestsList = document.getElementById('requestsList');
+                const emptyMsg = document.getElementById('emptyMessage');
+
+                loadingMsg.style.display = 'none';
+
+                if (requests.length === 0) {
+                    emptyMsg.style.display = 'block';
+                } else {
+                    requestsList.style.display = 'block';
+                    displayRequests(requests);
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                document.getElementById('loadingMessage').textContent = 
+                    'Error loading requests: ' + error.message;
+            }
+        }
+
+        function displayRequests(requests) {
+            const container = document.getElementById('requestsList');
+            container.innerHTML = '';
+
+            requests.forEach(request => {
+                const statusColors = {
+                    'PENDING': '#FFA500',
+                    'IN_PROGRESS': '#2196F3',
+                    'RESOLVED': '#4CAF50',
+                    'REJECTED': '#F44336'
+                };
+
+                const priorityIcons = {
+                    'LOW': '⬇️',
+                    'MEDIUM': '➡️',
+                    'HIGH': '⬆️',
+                    'URGENT': '🚨'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'request-card';
+                card.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background: white;
+                `;
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: #333;">${request.title}</h3>
+                        <span style="background: ${statusColors[request.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                            ${request.status}
+                        </span>
+                    </div>
+                    <p style="color: #666; margin: 10px 0;">${request.description}</p>
+                    <div style="display: flex; gap: 15px; font-size: 14px; color: #888; margin-top: 10px;">
+                        <span>${priorityIcons[request.priority]} ${request.priority}</span>
+                        <span><i class="fas fa-tag"></i> ${request.category}</span>
+                        <span><i class="fas fa-calendar"></i> ${new Date(request.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    ${request.resolutionNotes ? `
+                        <div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+                            <strong>Resolution Notes:</strong>
+                            <p style="margin: 5px 0 0 0;">${request.resolutionNotes}</p>
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
 </html>

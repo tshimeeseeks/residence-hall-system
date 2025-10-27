@@ -1,233 +1,137 @@
-/**
- * Authentication Module
- * Handles user login, signup, and session management
- */
+// ============================================
+// FIREBASE AUTHENTICATION HELPER FUNCTIONS
+// ============================================
 
-// ===== STUDENT SIGNUP =====
-async function handleStudentSignup(event) {
-    event.preventDefault();
-    
-    const formData = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
-        firstName: document.getElementById('firstName').value,
-        lastName: document.getElementById('lastName').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        studentNumber: document.getElementById('studentNumber').value,
-        roomId: document.getElementById('roomId').value,
-        building: document.getElementById('building').value,
-        floor: parseInt(document.getElementById('floor').value),
-        course: document.getElementById('course').value,
-        yearOfStudy: parseInt(document.getElementById('yearOfStudy').value)
-    };
-    
-    try {
-        const response = await apiCall(
-            API_ENDPOINTS.auth.studentSignup,
-            HTTP_METHODS.POST,
-            formData,
-            false // No auth required for signup
-        );
-        
-        showSuccess('Signup successful! Please wait for admin approval.');
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 2000);
-        
-    } catch (error) {
-        showError(error.message || 'Signup failed. Please try again.');
-    }
+/**
+ * Check if user is authenticated
+ */
+async function checkAuth() {
+    return new Promise((resolve) => {
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            console.error('Firebase is not initialized');
+            resolve({ authenticated: false });
+            return;
+        }
+
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const token = await user.getIdToken();
+                    const tokenResult = await user.getIdTokenResult();
+                    
+                    // Check if user has admin claim
+                    const isAdmin = tokenResult.claims.admin === true;
+                    
+                    resolve({
+                        authenticated: true,
+                        user: user,
+                        token: token,
+                        isAdmin: isAdmin,
+                        email: user.email,
+                        uid: user.uid
+                    });
+                } catch (error) {
+                    console.error('Error getting user token:', error);
+                    resolve({ authenticated: false });
+                }
+            } else {
+                resolve({ authenticated: false });
+            }
+        });
+    });
 }
 
-// ===== STUDENT LOGIN =====
-async function handleStudentLogin(event) {
-    event.preventDefault();
+/**
+ * Protect pages that require authentication
+ */
+async function protectPage(requireAdmin = false) {
+    const auth = await checkAuth();
     
-    const credentials = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value
-    };
+    if (!auth.authenticated) {
+        sessionStorage.setItem('redirectAfterLogin', window.location.href);
+        window.location.href = 'login.html';
+        return null;
+    }
     
+    // Check if admin access is required
+    if (requireAdmin && !auth.isAdmin) {
+        alert('Access denied. Admin privileges required.');
+        window.location.href = 'dashboard.html';
+        return null;
+    }
+    
+    // Store user info
+    sessionStorage.setItem('currentUser', JSON.stringify({
+        email: auth.email,
+        isAdmin: auth.isAdmin,
+        uid: auth.uid
+    }));
+    
+    return auth;
+}
+
+/**
+ * Logout function
+ */
+async function logout() {
     try {
-        const response = await apiCall(
-            API_ENDPOINTS.auth.studentLogin,
-            HTTP_METHODS.POST,
-            credentials,
-            false // No auth required for login
-        );
-        
-        // Save user data and token
-        saveCurrentUser(response);
-        
-        showSuccess('Login successful!');
-        
-        // Redirect based on account status
-        if (response.accountStatus === 'PENDING') {
-            showError('Your account is pending admin approval.');
-            clearSession();
-        } else if (response.accountStatus === 'APPROVED') {
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1000);
-        } else {
-            showError('Your account has been rejected.');
-            clearSession();
+        if (firebase.auth().currentUser) {
+            await firebase.auth().signOut();
         }
         
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        window.location.href = 'index.html';
     } catch (error) {
-        showError(error.message || 'Login failed. Please check your credentials.');
-    }
-}
-
-// ===== ADMIN LOGIN =====
-async function handleAdminLogin(event) {
-    event.preventDefault();
-    
-    const credentials = {
-        email: document.getElementById('admin-email').value,
-        password: document.getElementById('admin-password').value
-    };
-    
-    try {
-        const response = await apiCall(
-            API_ENDPOINTS.auth.adminLogin,
-            HTTP_METHODS.POST,
-            credentials,
-            false // No auth required for login
-        );
-        
-        // Save user data and token
-        saveCurrentUser(response);
-        
-        showSuccess('Admin login successful!');
-        setTimeout(() => {
-            window.location.href = 'addashboard.html';
-        }, 1000);
-        
-    } catch (error) {
-        showError(error.message || 'Login failed. Please check your credentials.');
-    }
-}
-
-// ===== ADMIN SIGNUP =====
-async function handleAdminSignup(event) {
-    event.preventDefault();
-    
-    const formData = {
-        email: document.getElementById('admin-email').value,
-        password: document.getElementById('admin-password').value,
-        firstName: document.getElementById('admin-firstName').value,
-        lastName: document.getElementById('admin-lastName').value,
-        phoneNumber: document.getElementById('admin-phoneNumber').value,
-        department: document.getElementById('admin-department').value,
-        role: document.getElementById('admin-role').value || 'ADMIN'
-    };
-    
-    try {
-        const response = await apiCall(
-            API_ENDPOINTS.auth.adminSignup,
-            HTTP_METHODS.POST,
-            formData,
-            false // No auth required for signup
-        );
-        
-        saveCurrentUser(response);
-        
-        showSuccess('Admin account created successfully!');
-        setTimeout(() => {
-            window.location.href = 'addashboard.html';
-        }, 1500);
-        
-    } catch (error) {
-        showError(error.message || 'Admin signup failed. Please try again.');
-    }
-}
-
-// ===== LOGOUT =====
-function handleLogout() {
-    const confirmLogout = confirm('Are you sure you want to log out?');
-    
-    if (confirmLogout) {
-        clearSession();
+        console.error('Logout error:', error);
+        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = 'index.html';
     }
 }
 
-// ===== ROUTE PROTECTION =====
 /**
- * Protect pages that require authentication
- * Call this function at the top of protected pages
+ * Get current user from session
  */
-function requireAuth() {
-    if (!isAuthenticated()) {
-        window.location.href = 'login.html';
-    }
+function getCurrentUser() {
+    const userStr = sessionStorage.getItem('currentUser');
+    return userStr ? JSON.parse(userStr) : null;
 }
 
 /**
- * Protect admin pages
+ * Check if current user is admin
  */
-function requireAdminAuth() {
-    if (!isAuthenticated()) {
-        window.location.href = 'adlogin.html';
+function isAdmin() {
+    const user = getCurrentUser();
+    return user && user.isAdmin === true;
+}
+
+/**
+ * Initialize auth listener
+ */
+function initAuthListener() {
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+        console.error('Firebase is not initialized');
         return;
     }
-    
-    const user = getCurrentUser();
-    if (user && user.userType !== 'ADMIN') {
-        showError('Admin access required');
-        window.location.href = 'login.html';
-    }
-}
 
-/**
- * Display user info in navigation
- */
-function displayUserInfo() {
-    const user = getCurrentUser();
-    if (user) {
-        const userNameElement = document.getElementById('user-name');
-        const userEmailElement = document.getElementById('user-email');
-        
-        if (userNameElement) {
-            userNameElement.textContent = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+            sessionStorage.clear();
+            
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage !== 'login.html' && 
+                currentPage !== 'adlogin.html' && 
+                currentPage !== 'index.html' &&
+                currentPage !== 'signup.html') {
+                window.location.href = 'index.html';
+            }
         }
-        
-        if (userEmailElement) {
-            userEmailElement.textContent = user.email;
-        }
-    }
-}
-
-// ===== AUTO-INITIALIZE =====
-document.addEventListener('DOMContentLoaded', () => {
-    // Attach event listeners for login forms
-    const studentLoginForm = document.getElementById('student-login-form');
-    if (studentLoginForm) {
-        studentLoginForm.addEventListener('submit', handleStudentLogin);
-    }
-    
-    const studentSignupForm = document.getElementById('student-signup-form');
-    if (studentSignupForm) {
-        studentSignupForm.addEventListener('submit', handleStudentSignup);
-    }
-    
-    const adminLoginForm = document.getElementById('admin-login-form');
-    if (adminLoginForm) {
-        adminLoginForm.addEventListener('submit', handleAdminLogin);
-    }
-    
-    const adminSignupForm = document.getElementById('admin-signup-form');
-    if (adminSignupForm) {
-        adminSignupForm.addEventListener('submit', handleAdminSignup);
-    }
-    
-    // Attach logout button listener
-    const logoutButtons = document.querySelectorAll('.logout-btn, #logout-btn');
-    logoutButtons.forEach(button => {
-        button.addEventListener('click', handleLogout);
     });
-    
-    // Display user info if on authenticated page
-    displayUserInfo();
+}
+
+// Auto-initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initAuthListener();
 });
