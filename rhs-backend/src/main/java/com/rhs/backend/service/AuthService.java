@@ -12,7 +12,6 @@ import com.rhs.backend.exception.ResourceNotFoundException;
 import com.rhs.backend.model.Admin;
 import com.rhs.backend.model.Student;
 import com.rhs.backend.model.embedded.AdminPermissions;
-import com.rhs.backend.model.embedded.RoomDetails;
 import com.rhs.backend.model.enums.AccountStatus;
 import com.rhs.backend.model.enums.UserType;
 import com.rhs.backend.repository.AdminRepository;
@@ -55,16 +54,9 @@ public class AuthService {
 
         UserRecord firebaseUser = FirebaseAuth.getInstance().createUser(firebaseRequest);
 
-        // Create room details
-        RoomDetails roomDetails = RoomDetails.builder()
-                .roomId(request.getRoomId())
-                .building(request.getBuilding())
-                .floor(request.getFloor())
-                .build();
-
         // Create student in MongoDB
         Student student = Student.builder()
-                .firebaseUid(firebaseUser.getUid()) // Add this field to your User model
+                .firebaseUid(firebaseUser.getUid())
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -73,7 +65,7 @@ public class AuthService {
                 .accountStatus(AccountStatus.PENDING)
                 .isEnabled(false)
                 .studentNumber(request.getStudentNumber())
-                .roomDetails(roomDetails)
+                .roomId(request.getRoomId())
                 .course(request.getCourse())
                 .yearOfStudy(request.getYearOfStudy())
                 .build();
@@ -83,7 +75,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .message("Student registration successful. Please wait for admin approval.")
                 .userId(student.getId())
-                .email(student.getEmail()) // This should work now
+                .email(student.getEmail())
                 .userType(student.getUserType().name())
                 .accountStatus(student.getAccountStatus().name())
                 .build();
@@ -104,9 +96,9 @@ public class AuthService {
 
         UserRecord firebaseUser = FirebaseAuth.getInstance().createUser(firebaseRequest);
 
-        // Set custom claims for role
+        // Set custom claims for admin role
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", "ADMIN");
+        claims.put("admin", true);
         FirebaseAuth.getInstance().setCustomUserClaims(firebaseUser.getUid(), claims);
 
         // Create admin permissions
@@ -119,21 +111,21 @@ public class AuthService {
                 .canManageRooms(request.getCanManageRooms() != null ? request.getCanManageRooms() : false)
                 .build();
 
-        // Create admin in MongoDB
-        Admin admin = Admin.builder()
-                .firebaseUid(firebaseUser.getUid()) // Add this field to your User model
-                .email(request.getEmail())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .phoneNumber(request.getPhoneNumber())
-                .userType(UserType.ADMIN)
-                .accountStatus(AccountStatus.APPROVED)
-                .isEnabled(true)
-                .department(request.getDepartment())
-                .adminPermissions(permissions)
-                .approvedByAdminId(creatorAdminId)
-                .approvalDate(LocalDateTime.now())
-                .build();
+        // Create admin in MongoDB using setters (avoiding SuperBuilder issues)
+        Admin admin = new Admin();
+        admin.setFirebaseUid(firebaseUser.getUid());
+        admin.setEmail(request.getEmail());
+        admin.setFirstName(request.getFirstName());
+        admin.setLastName(request.getLastName());
+        admin.setPhoneNumber(request.getPhoneNumber());
+        admin.setUserType(UserType.ADMIN);
+        admin.setAccountStatus(AccountStatus.APPROVED);
+        admin.setIsEnabled(true);
+        admin.setApprovedByAdminId(creatorAdminId);
+        admin.setApprovalDate(LocalDateTime.now());
+        admin.setDepartment(request.getDepartment());
+        admin.setAdminPermissions(permissions);
+        admin.setCreatedAt(LocalDateTime.now());
 
         adminRepository.save(admin);
 
@@ -151,7 +143,7 @@ public class AuthService {
         Student student = studentRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student.getAccountStatus() != AccountStatus.PENDING_APPROVAL) {
+        if (student.getAccountStatus() != AccountStatus.PENDING) {
             throw new IllegalStateException("Student is not in pending approval state");
         }
 
@@ -163,14 +155,13 @@ public class AuthService {
 
             // Set custom claims
             Map<String, Object> claims = new HashMap<>();
-            claims.put("role", "STUDENT");
+            claims.put("admin", false);
             FirebaseAuth.getInstance().setCustomUserClaims(student.getFirebaseUid(), claims);
 
-            // Update MongoDB
+            // Update MongoDB - Student model doesn't have approvedByAdminId or approvalDate
             student.setAccountStatus(AccountStatus.APPROVED);
             student.setIsEnabled(true);
-            student.setApprovedByAdminId(adminId);
-            student.setApprovalDate(LocalDateTime.now());
+            student.setUpdatedAt(LocalDateTime.now());
             studentRepository.save(student);
 
             return "Student approved successfully";
@@ -178,7 +169,8 @@ public class AuthService {
             // Keep Firebase user disabled
             student.setAccountStatus(AccountStatus.REJECTED);
             student.setIsEnabled(false);
-            student.setRejectionReason(request.getRejectionReason());
+            student.setUpdatedAt(LocalDateTime.now());
+            // Note: Student model doesn't have rejectionReason field either
             studentRepository.save(student);
 
             return "Student rejected";

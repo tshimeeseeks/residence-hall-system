@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdminCreateRequest {
+public class AdminCreateStudentRequest {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
@@ -28,14 +28,15 @@ public class AdminCreateRequest {
 
     private String phoneNumber;
 
-    private boolean superAdmin;
+    @NotBlank(message = "Room ID is required")
+    private String roomId;
 
-    // Explicit getter for boolean field to match the naming convention
-    public boolean isSuperAdmin() {
-        return superAdmin;
-    }
+    @NotBlank(message = "Student number is required")
+    private String studentNumber;
 
-    public void setSuperAdmin(boolean superAdmin) {
-        this.superAdmin = superAdmin;
-    }
+    private String course;
+
+    private String yearOfStudy;
+
+    private String emergencyContact;
 }

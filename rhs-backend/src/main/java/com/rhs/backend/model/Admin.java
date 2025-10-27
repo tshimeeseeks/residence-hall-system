@@ -14,13 +14,13 @@ import com.rhs.backend.model.embedded.AdminPermissions;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@SuperBuilder(toBuilder = true) // ADD toBuilder = true
 @EqualsAndHashCode(callSuper = true)
 public class Admin extends User {
 
     @Field("admin_permissions")
-    private AdminPermissions adminPermissions; // Master Admin, Standard Admin
+    private AdminPermissions adminPermissions;
 
     @Field("department")
-    private String department; // Maintenance, Clerk
+    private String department;
 }

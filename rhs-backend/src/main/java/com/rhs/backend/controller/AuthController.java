@@ -1,10 +1,13 @@
 package com.rhs.backend.controller;
 
+import com.rhs.backend.model.Admin;
 import com.rhs.backend.model.Student;
 import com.rhs.backend.model.User;
 import com.rhs.backend.security.FirebaseUserDetails;
 import com.rhs.backend.service.UserService;
+import com.rhs.backend.repository.AdminRepository;
 import com.rhs.backend.repository.StudentRepository;
+import com.rhs.backend.model.enums.UserType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,7 @@ public class AuthController {
 
     private final UserService userService;
     private final StudentRepository studentRepository;
+    private final AdminRepository adminRepository;
 
     /**
      * Verify Firebase token and sync user data
@@ -34,24 +38,28 @@ public class AuthController {
         String firebaseUid = userDetails.getUid();
         String email = userDetails.getEmail();
 
-        // Try to find user in database (could be Admin/User or Student)
-        Optional<User> userOpt = userService.getUserByFirebaseUid(firebaseUid);
-        Optional<Student> studentOpt = studentRepository.findByFirebaseUid(firebaseUid);
-
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("firebaseUid", firebaseUid);
         response.put("email", email);
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            response.put("userId", user.getId());
-            response.put("userType", user.getUserType().name());
-            response.put("accountStatus", user.getAccountStatus().name());
-            response.put("isAdmin", user.isAdmin());
-            response.put("firstName", user.getFirstName());
-            response.put("lastName", user.getLastName());
-        } else if (studentOpt.isPresent()) {
+        // Try to find user as Admin first
+        Optional<Admin> adminOpt = adminRepository.findByFirebaseUid(firebaseUid);
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
+            response.put("userId", admin.getId());
+            response.put("userType", admin.getUserType().name());
+            response.put("accountStatus", admin.getAccountStatus().name());
+            response.put("isAdmin", true);
+            response.put("firstName", admin.getFirstName());
+            response.put("lastName", admin.getLastName());
+            response.put("department", admin.getDepartment());
+            return ResponseEntity.ok(response);
+        }
+
+        // Try to find user as Student
+        Optional<Student> studentOpt = studentRepository.findByFirebaseUid(firebaseUid);
+        if (studentOpt.isPresent()) {
             Student student = studentOpt.get();
             response.put("userId", student.getId());
             response.put("userType", "STUDENT");
@@ -61,13 +69,12 @@ public class AuthController {
             response.put("lastName", student.getLastName());
             response.put("studentNumber", student.getStudentNumber());
             response.put("roomId", student.getRoomId());
-        } else {
-            // User not found in database
-            response.put("error", "User not registered in system");
-            return ResponseEntity.status(404).body(response);
+            return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.ok(response);
+        // User not found in database
+        response.put("error", "User not registered in system");
+        return ResponseEntity.status(404).body(response);
     }
 
     /**
@@ -79,20 +86,28 @@ public class AuthController {
 
         String firebaseUid = userDetails.getUid();
 
-        // Try to find user as Admin/User first
-        Optional<User> userOpt = userService.getUserByFirebaseUid(firebaseUid);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
+        // Try to find user as Admin first
+        Optional<Admin> adminOpt = adminRepository.findByFirebaseUid(firebaseUid);
+        if (adminOpt.isPresent()) {
+            Admin admin = adminOpt.get();
             Map<String, Object> response = new HashMap<>();
-            response.put("userId", user.getId());
-            response.put("email", user.getEmail());
-            response.put("firstName", user.getFirstName());
-            response.put("lastName", user.getLastName());
-            response.put("phoneNumber", user.getPhoneNumber());
-            response.put("userType", user.getUserType().name());
-            response.put("accountStatus", user.getAccountStatus().name());
-            response.put("isAdmin", user.isAdmin());
-            response.put("isSuperAdmin", user.isSuperAdmin());
+            response.put("userId", admin.getId());
+            response.put("email", admin.getEmail());
+            response.put("firstName", admin.getFirstName());
+            response.put("lastName", admin.getLastName());
+            response.put("phoneNumber", admin.getPhoneNumber());
+            response.put("userType", admin.getUserType().name());
+            response.put("accountStatus", admin.getAccountStatus().name());
+            response.put("isAdmin", true);
+            response.put("department", admin.getDepartment());
+
+            // Check if super admin based on permissions
+            boolean isSuperAdmin = false;
+            if (admin.getAdminPermissions() != null) {
+                isSuperAdmin = "SUPER_ADMIN".equals(admin.getAdminPermissions().getRole());
+            }
+            response.put("isSuperAdmin", isSuperAdmin);
+
             return ResponseEntity.ok(response);
         }
 
@@ -113,6 +128,7 @@ public class AuthController {
             response.put("course", student.getCourse());
             response.put("yearOfStudy", student.getYearOfStudy());
             response.put("isAdmin", false);
+            response.put("isSuperAdmin", false);
             return ResponseEntity.ok(response);
         }
 
@@ -143,6 +159,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "authenticated", true,
                 "firebaseUid", userDetails.getUid(),
-                "email", userDetails.getEmail()));
+                "email", userDetails.getEmail(),
+                "isAdmin", userDetails.isAdmin()));
     }
 }

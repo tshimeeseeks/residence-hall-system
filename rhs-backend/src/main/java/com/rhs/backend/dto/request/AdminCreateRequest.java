@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,14 +30,17 @@ public class AdminCreateRequest {
 
     private String phoneNumber;
 
-    private boolean superAdmin;
+    private String department;
 
-    // Explicit getter for boolean field to match the naming convention
-    public boolean isSuperAdmin() {
-        return superAdmin;
-    }
+    private String role;
 
-    public void setSuperAdmin(boolean superAdmin) {
-        this.superAdmin = superAdmin;
-    }
+    private List<String> permissions;
+
+    private Boolean canManageUsers;
+
+    private Boolean canManageQueries;
+
+    private Boolean canApprovePasses;
+
+    private Boolean canManageRooms;
 }
