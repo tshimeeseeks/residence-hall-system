@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface StudentRepository extends MongoRepository<Student, String> {
 
+    Optional<Student> findByFirebaseUid(String firebaseUid); // ADD THIS LINE
+
     Optional<Student> findByEmail(String email);
 
     Optional<Student> findByStudentNumber(String studentNumber);
