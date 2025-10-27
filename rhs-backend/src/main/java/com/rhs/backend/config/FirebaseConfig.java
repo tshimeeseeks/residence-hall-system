@@ -22,12 +22,11 @@ public class FirebaseConfig {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
                 FileInputStream serviceAccount = new FileInputStream(
-                    new ClassPathResource("firebase-service-account.json").getFile()
-                );
+                        new ClassPathResource("firebase-service-account.json").getFile());
 
                 FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
 
                 FirebaseApp.initializeApp(options);
                 log.info("Firebase Admin SDK initialized successfully");

@@ -14,7 +14,10 @@ public class StudentCreatedResponse {
     private String studentId;
     private String firebaseUid;
     private String email;
-    private String temporaryPassword; // Admin sees this to share with student
+    private String temporaryPassword;
     private String studentNumber;
     private String fullName;
+    private String roomNumber;
+    private String building;
+    private Integer floor;
 }

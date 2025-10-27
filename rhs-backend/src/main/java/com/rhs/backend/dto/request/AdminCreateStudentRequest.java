@@ -1,19 +1,24 @@
 package com.rhs.backend.dto.request;
 
-import lombok.Data;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class AdminCreateStudentRequest {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AdminCreateRequest {
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    private String password; // Admin sets this
+    private String password;
 
     @NotBlank(message = "First name is required")
     private String firstName;
@@ -21,18 +26,16 @@ public class AdminCreateStudentRequest {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
-    @NotBlank(message = "Phone number is required")
     private String phoneNumber;
 
-    @NotBlank(message = "Student number is required")
-    private String studentNumber;
+    private boolean superAdmin;
 
-    @NotBlank(message = "Room ID is required")
-    private String roomId;
+    // Explicit getter for boolean field to match the naming convention
+    public boolean isSuperAdmin() {
+        return superAdmin;
+    }
 
-    private String building;
-    private Integer floor;
-
-    private String course;
-    private Integer yearOfStudy;
+    public void setSuperAdmin(boolean superAdmin) {
+        this.superAdmin = superAdmin;
+    }
 }

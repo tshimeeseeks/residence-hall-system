@@ -1,13 +1,11 @@
 package com.rhs.backend.mapper;
 
-import com.rhs.backend.dto.MaintenanceQueryDTO;
+import com.rhs.backend.dto.request.MaintenanceQueryDTO;
 import com.rhs.backend.model.MaintenanceQuery;
 import com.rhs.backend.model.Student;
-import com.rhs.backend.model.Admin;
-import com.rhs.backend.model.enums.QueryStatus;
+import com.rhs.backend.model.User;
 import com.rhs.backend.repository.StudentRepository;
-import com.rhs.backend.repository.AdminRepository;
-import lombok.RequiredArgsConstructor;
+import com.rhs.backend.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -16,15 +14,19 @@ import java.time.LocalDateTime;
  * Mapper for converting between MaintenanceQuery entities and DTOs
  */
 @Component
-@RequiredArgsConstructor
 public class MaintenanceQueryMapper {
 
     private final StudentRepository studentRepository;
-    private final AdminRepository adminRepository;
+    private final UserRepository userRepository;
+
+    public MaintenanceQueryMapper(StudentRepository studentRepository, UserRepository userRepository) {
+        this.studentRepository = studentRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Convert DTO to Entity (for creating/updating)
-     * 
+     *
      * @param dto the MaintenanceQueryDTO
      * @return MaintenanceQuery entity
      */
@@ -37,8 +39,9 @@ public class MaintenanceQueryMapper {
                 .roomId(dto.getRoomId())
                 .queryTitle(dto.getQueryTitle())
                 .queryDescription(dto.getQueryDescription())
+                .category(dto.getCategory())
                 .photoUrls(dto.getPhotoUrls())
-                .status(dto.getStatus() != null ? dto.getStatus() : QueryStatus.PENDING)
+                .status(dto.getStatus() != null ? dto.getStatus() : "PENDING")
                 .priority(dto.getPriority())
                 .resolutionNotes(dto.getResolutionNotes())
                 .resolvedAt(dto.getResolvedAt());
@@ -51,15 +54,18 @@ public class MaintenanceQueryMapper {
         // Fetch and set student reference
         if (dto.getStudentId() != null) {
             Student student = studentRepository.findById(dto.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found with ID: " + dto.getStudentId()));
-            builder.student(student);
+                    .orElseThrow(() -> new RuntimeException("Student not found with id: " + dto.getStudentId()));
+            builder.studentId(student.getId());
+            builder.studentName(student.getFirstName() + " " + student.getLastName());
+            builder.studentEmail(student.getEmail());
         }
 
         // Fetch and set admin reference if assigned
         if (dto.getAssignedToId() != null) {
-            Admin admin = adminRepository.findById(dto.getAssignedToId())
-                    .orElseThrow(() -> new RuntimeException("Admin not found with ID: " + dto.getAssignedToId()));
-            builder.assignedTo(admin);
+            User admin = userRepository.findById(dto.getAssignedToId())
+                    .orElseThrow(() -> new RuntimeException("Admin not found with id: " + dto.getAssignedToId()));
+            builder.assignedToId(admin.getId());
+            builder.assignedToName(admin.getFirstName() + " " + admin.getLastName());
         }
 
         return builder.build();
@@ -67,7 +73,7 @@ public class MaintenanceQueryMapper {
 
     /**
      * Convert DTO to Entity without fetching references (for partial updates)
-     * 
+     *
      * @param dto            the MaintenanceQueryDTO
      * @param existingEntity the existing MaintenanceQuery entity
      * @return updated MaintenanceQuery entity
@@ -81,40 +87,56 @@ public class MaintenanceQueryMapper {
         if (dto.getRoomId() != null) {
             existingEntity.setRoomId(dto.getRoomId());
         }
+
         if (dto.getQueryTitle() != null) {
             existingEntity.setQueryTitle(dto.getQueryTitle());
         }
+
         if (dto.getQueryDescription() != null) {
             existingEntity.setQueryDescription(dto.getQueryDescription());
         }
+
+        if (dto.getCategory() != null) {
+            existingEntity.setCategory(dto.getCategory());
+        }
+
         if (dto.getPhotoUrls() != null) {
             existingEntity.setPhotoUrls(dto.getPhotoUrls());
         }
+
         if (dto.getStatus() != null) {
             existingEntity.setStatus(dto.getStatus());
         }
+
         if (dto.getPriority() != null) {
             existingEntity.setPriority(dto.getPriority());
         }
+
         if (dto.getResolutionNotes() != null) {
             existingEntity.setResolutionNotes(dto.getResolutionNotes());
         }
+
         if (dto.getResolvedAt() != null) {
             existingEntity.setResolvedAt(dto.getResolvedAt());
         }
 
+        existingEntity.setUpdatedAt(LocalDateTime.now());
+
         // Update student reference if provided
         if (dto.getStudentId() != null) {
             Student student = studentRepository.findById(dto.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found with ID: " + dto.getStudentId()));
-            existingEntity.setStudent(student);
+                    .orElseThrow(() -> new RuntimeException("Student not found with id: " + dto.getStudentId()));
+            existingEntity.setStudentId(student.getId());
+            existingEntity.setStudentName(student.getFirstName() + " " + student.getLastName());
+            existingEntity.setStudentEmail(student.getEmail());
         }
 
         // Update admin reference if provided
         if (dto.getAssignedToId() != null) {
-            Admin admin = adminRepository.findById(dto.getAssignedToId())
-                    .orElseThrow(() -> new RuntimeException("Admin not found with ID: " + dto.getAssignedToId()));
-            existingEntity.setAssignedTo(admin);
+            User admin = userRepository.findById(dto.getAssignedToId())
+                    .orElseThrow(() -> new RuntimeException("Admin not found with id: " + dto.getAssignedToId()));
+            existingEntity.setAssignedToId(admin.getId());
+            existingEntity.setAssignedToName(admin.getFirstName() + " " + admin.getLastName());
         }
 
         return existingEntity;
@@ -122,7 +144,7 @@ public class MaintenanceQueryMapper {
 
     /**
      * Convert Entity to DTO (for reading/returning)
-     * 
+     *
      * @param entity the MaintenanceQuery entity
      * @return MaintenanceQueryDTO
      */
@@ -136,6 +158,7 @@ public class MaintenanceQueryMapper {
                 .roomId(entity.getRoomId())
                 .queryTitle(entity.getQueryTitle())
                 .queryDescription(entity.getQueryDescription())
+                .category(entity.getCategory())
                 .photoUrls(entity.getPhotoUrls())
                 .status(entity.getStatus())
                 .priority(entity.getPriority())
@@ -145,16 +168,16 @@ public class MaintenanceQueryMapper {
                 .updatedAt(entity.getUpdatedAt());
 
         // Extract student information
-        if (entity.getStudent() != null) {
-            builder.studentId(entity.getStudent().getId())
-                    .studentName(entity.getStudent().getFirstName() + " " + entity.getStudent().getLastName())
-                    .studentEmail(entity.getStudent().getEmail());
+        if (entity.getStudentId() != null) {
+            builder.studentId(entity.getStudentId())
+                    .studentName(entity.getStudentName())
+                    .studentEmail(entity.getStudentEmail());
         }
 
         // Extract admin information
-        if (entity.getAssignedTo() != null) {
-            builder.assignedToId(entity.getAssignedTo().getId())
-                    .assignedToName(entity.getAssignedTo().getFirstName() + " " + entity.getAssignedTo().getLastName());
+        if (entity.getAssignedToId() != null) {
+            builder.assignedToId(entity.getAssignedToId())
+                    .assignedToName(entity.getAssignedToName());
         }
 
         return builder.build();

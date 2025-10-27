@@ -70,7 +70,7 @@ public class AuthService {
                 .lastName(request.getLastName())
                 .phoneNumber(request.getPhoneNumber())
                 .userType(UserType.STUDENT)
-                .accountStatus(AccountStatus.PENDING_APPROVAL)
+                .accountStatus(AccountStatus.PENDING)
                 .isEnabled(false)
                 .studentNumber(request.getStudentNumber())
                 .roomDetails(roomDetails)

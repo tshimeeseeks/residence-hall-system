@@ -1,60 +1,185 @@
 package com.rhs.backend.controller;
 
-import com.rhs.backend.model.enums.AccountStatus;
 import com.rhs.backend.model.SleepOverPass;
+import com.rhs.backend.security.FirebaseUserDetails;
 import com.rhs.backend.service.SleepOverService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
-@RequestMapping("/sleepover/applications")
+@RequestMapping("/api/sleepover-passes")
+@RequiredArgsConstructor
 public class SleepOverController {
 
     private final SleepOverService sleepoverService;
 
-    @Autowired
-    public SleepOverController(SleepOverService sleepoverService) {
-        this.sleepoverService = sleepoverService;
-    }
-
+    /**
+     * Create a new sleepover pass application (Students only)
+     */
     @PostMapping
-    public ResponseEntity<SleepOverPass> createSleepoverPass(@RequestBody SleepOverPass sleepoverPass) {
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> createSleepoverPass(
+            @RequestBody SleepOverPass sleepOverPass,
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
-            SleepOverPass createdPass = sleepoverService.createSleepoverPass(sleepoverPass);
+            // Set the student ID from authenticated user
+            sleepOverPass.setStudentId(userDetails.getUid());
+
+            SleepOverPass createdPass = sleepoverService.createSleepoverPass(sleepOverPass);
             return ResponseEntity.ok(createdPass);
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            log.error("Error creating sleepover pass", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
         }
     }
 
+    /**
+     * Get my sleepover passes (Students only)
+     */
     @GetMapping("/my")
-    public ResponseEntity<List<SleepOverPass>> getMySleepoverPasses(@RequestParam String applicantId) {
-        return ResponseEntity.ok(sleepoverService.getMySleepoverPasses(applicantId));
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<SleepOverPass>> getMySleepoverPasses(
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
+
+        String studentId = userDetails.getUid();
+        List<SleepOverPass> passes = sleepoverService.getStudentSleepoverPasses(studentId);
+        return ResponseEntity.ok(passes);
     }
 
+    /**
+     * Get all sleepover passes (Admin only)
+     */
     @GetMapping("/admin")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<List<SleepOverPass>> getAllSleepoverPasses() {
-        return ResponseEntity.ok(sleepoverService.getAllSleepoverPasses());
+        List<SleepOverPass> passes = sleepoverService.getAllSleepoverPasses();
+        return ResponseEntity.ok(passes);
     }
 
+    /**
+     * Get all pending sleepover passes (Admin only)
+     */
+    @GetMapping("/admin/pending")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<List<SleepOverPass>> getPendingSleepoverPasses() {
+        List<SleepOverPass> passes = sleepoverService.getPendingSleepoverPasses();
+        return ResponseEntity.ok(passes);
+    }
+
+    /**
+     * Get a specific sleepover pass by ID
+     */
     @GetMapping("/{applicationId}")
-    public ResponseEntity<SleepOverPass> getSleepoverPassById(@PathVariable String applicationId) {
-        return sleepoverService.getSleepoverPassById(applicationId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getSleepoverPassById(
+            @PathVariable String applicationId,
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
+        try {
+            SleepOverPass pass = sleepoverService.getSleepoverPassById(applicationId);
+
+            // Check if user has permission to view this pass
+            boolean isAdmin = userDetails.isAdmin();
+            boolean isOwner = pass.getStudentId().equals(userDetails.getUid());
+            if (!isAdmin && !isOwner) {
+                return ResponseEntity.status(403).body(
+                        Map.of("error", "Access denied"));
+            }
+
+            return ResponseEntity.ok(pass);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(
+                    Map.of("error", "Sleepover pass not found"));
+        }
     }
 
-    @PutMapping("/{applicationId}/review")
-    public ResponseEntity<SleepOverPass> reviewSleepoverPass(@PathVariable String applicationId,
-            @RequestParam AccountStatus status) {
+    /**
+     * Approve a sleepover pass (Admin only)
+     */
+    @PutMapping("/{applicationId}/approve")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> approveSleepoverPass(
+            @PathVariable String applicationId,
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
-            SleepOverPass reviewedPass = sleepoverService.reviewSleepoverPass(applicationId, status);
-            return ResponseEntity.ok(reviewedPass);
+            String adminId = userDetails.getUid();
+            SleepOverPass approvedPass = sleepoverService.approveSleepoverPass(applicationId, adminId);
+            return ResponseEntity.ok(approvedPass);
+
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            log.error("Error approving sleepover pass", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
         }
+    }
+
+    /**
+     * Reject a sleepover pass (Admin only)
+     */
+    @PutMapping("/{applicationId}/reject")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<?> rejectSleepoverPass(
+            @PathVariable String applicationId,
+            @RequestParam String reason,
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
+        try {
+            String adminId = userDetails.getUid();
+            SleepOverPass rejectedPass = sleepoverService.rejectSleepoverPass(
+                    applicationId, adminId, reason);
+            return ResponseEntity.ok(rejectedPass);
+
+        } catch (Exception e) {
+            log.error("Error rejecting sleepover pass", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Delete a sleepover pass (Admin only or Student who owns it)
+     */
+    @DeleteMapping("/{applicationId}")
+    public ResponseEntity<?> deleteSleepoverPass(
+            @PathVariable String applicationId,
+            @AuthenticationPrincipal FirebaseUserDetails userDetails) {
+        try {
+            SleepOverPass pass = sleepoverService.getSleepoverPassById(applicationId);
+
+            // Check if user has permission to delete
+            boolean isAdmin = userDetails.isAdmin();
+            boolean isOwner = pass.getStudentId().equals(userDetails.getUid());
+
+            if (!isAdmin && !isOwner) {
+                return ResponseEntity.status(403).body(
+                        Map.of("error", "Access denied"));
+            }
+
+            sleepoverService.deleteSleepoverPass(applicationId);
+            return ResponseEntity.ok(Map.of("message", "Sleepover pass deleted successfully"));
+
+        } catch (Exception e) {
+            log.error("Error deleting sleepover pass", e);
+            return ResponseEntity.badRequest().body(
+                    Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Get active sleepover passes (Admin only)
+     */
+    @GetMapping("/admin/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<List<SleepOverPass>> getActiveSleepoverPasses() {
+        List<SleepOverPass> passes = sleepoverService.getActiveSleepoverPasses();
+        return ResponseEntity.ok(passes);
     }
 }

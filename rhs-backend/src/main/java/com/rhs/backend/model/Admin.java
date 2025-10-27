@@ -14,7 +14,7 @@ import com.rhs.backend.model.embedded.AdminPermissions;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+
 @EqualsAndHashCode(callSuper = true)
 public class Admin extends User {
 

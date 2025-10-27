@@ -1,4 +1,4 @@
-package com.rhs.backend.Config;
+package com.rhs.backend.config;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;

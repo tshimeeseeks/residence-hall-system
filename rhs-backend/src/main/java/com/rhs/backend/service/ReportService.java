@@ -67,14 +67,6 @@ public class ReportService {
             table.addHeaderCell("Created At");
             table.addHeaderCell("Resolved At");
 
-            queries.stream().limit(20).forEach(q -> {
-                table.addCell(Optional.ofNullable(q.getQueryTitle()).orElse("-"));
-                table.addCell(Optional.ofNullable(q.getPriority()).orElse("-"));
-                table.addCell(q.getStatus() != null ? q.getStatus().name() : "-");
-                table.addCell(q.getCreatedAt() != null ? q.getCreatedAt().toString() : "-");
-                table.addCell(q.getResolvedAt() != null ? q.getResolvedAt().toString() : "-");
-            });
-
             document.add(new Paragraph("\nRecent Maintenance Queries:"));
             document.add(table);
             document.close();
@@ -113,7 +105,7 @@ public class ReportService {
                 Row row = sheet.createRow(rowIdx++);
                 row.createCell(0).setCellValue(Optional.ofNullable(q.getQueryTitle()).orElse("-"));
                 row.createCell(1).setCellValue(Optional.ofNullable(q.getPriority()).orElse("-"));
-                row.createCell(2).setCellValue(q.getStatus() != null ? q.getStatus().name() : "-");
+                row.createCell(2).setCellValue(q.getStatus() != null ? q.getStatus() : "-");
                 row.createCell(3).setCellValue(q.getCreatedAt() != null ? q.getCreatedAt().toString() : "-");
                 row.createCell(4).setCellValue(q.getResolvedAt() != null ? q.getResolvedAt().toString() : "-");
             }
@@ -155,15 +147,23 @@ public class ReportService {
     private Map<String, Object> calculateStats(List<MaintenanceQuery> queries) {
         Map<String, Object> stats = new LinkedHashMap<>();
         long total = queries.size();
-        long pending = queries.stream().filter(q -> q.getStatus() == QueryStatus.PENDING).count();
-        long inProgress = queries.stream().filter(q -> q.getStatus() == QueryStatus.IN_PROGRESS).count();
-        long resolved = queries.stream().filter(q -> q.getStatus() == QueryStatus.RESOLVED).count();
+
+        long pending = queries.stream()
+                .filter(q -> "PENDING".equals(q.getStatus()))
+                .count();
+
+        long inProgress = queries.stream()
+                .filter(q -> "IN_PROGRESS".equals(q.getStatus()))
+                .count();
+
+        long resolved = queries.stream()
+                .filter(q -> "RESOLVED".equals(q.getStatus()))
+                .count();
 
         stats.put("Total Queries", total);
         stats.put("Pending", pending);
         stats.put("In Progress", inProgress);
         stats.put("Resolved", resolved);
-        stats.put("Generated At", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 
         return stats;
     }
