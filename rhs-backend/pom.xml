@@ -123,9 +123,8 @@
         </dependency>
     </dependencies>
 
-  <build>
+    <build>
     <plugins>
-        <!-- Spring Boot Maven Plugin -->
         <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
@@ -139,7 +138,7 @@
             </configuration>
         </plugin>
         
-        <!-- Maven Compiler Plugin - CRITICAL FOR LOMBOK -->
+        <!-- Maven Compiler Plugin with Lombok annotation processor -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -147,8 +146,6 @@
             <configuration>
                 <source>17</source>
                 <target>17</target>
-                <encoding>UTF-8</encoding>
-                <forceJavacCompilerUse>true</forceJavacCompilerUse>
                 <annotationProcessorPaths>
                     <path>
                         <groupId>org.projectlombok</groupId>
