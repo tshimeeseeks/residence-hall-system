@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adnmin Queries</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <div class="header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+        <h2>Query Requests</h2>
+      </div>
+
+      <div class="request-list">
+        <button class="btn" onclick="goToVerify('Sarah Lee','query')">
+          Sarah Lee
+        </button>
+        <button class="btn" onclick="goToVerify('Alex Brown','query')">
+          Alex Brown
+        </button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

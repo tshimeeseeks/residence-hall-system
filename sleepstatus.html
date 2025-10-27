@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleepover Status</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>My Sleepover Passes</h2>
+        </div>
+
+        <div id="loadingMessage">Loading your passes...</div>
+        <div id="passesList" style="display: none;"></div>
+        <div id="emptyMessage" style="display: none; text-align: center; padding: 20px;">
+            <p>No sleepover passes yet.</p>
+            <a href="sleeprequest.html" class="btn">Request New Pass</a>
+        </div>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(false);
+            loadSleepoverPasses();
+        });
+
+        async function loadSleepoverPasses() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.SLEEPOVER.GET_MY);
+                const passes = await response.json();
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                if (passes.length === 0) {
+                    document.getElementById('emptyMessage').style.display = 'block';
+                } else {
+                    document.getElementById('passesList').style.display = 'block';
+                    displayPasses(passes);
+                }
+            } catch (error) {
+                console.error('Error loading passes:', error);
+                document.getElementById('loadingMessage').textContent = 
+                    'Error loading passes: ' + error.message;
+            }
+        }
+
+        function displayPasses(passes) {
+            const container = document.getElementById('passesList');
+            container.innerHTML = '';
+
+            passes.forEach(pass => {
+                const statusColors = {
+                    'PENDING': '#FFA500',
+                    'APPROVED': '#4CAF50',
+                    'REJECTED': '#F44336',
+                    'EXPIRED': '#999'
+                };
+
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background: white;
+                `;
+
+                const checkIn = new Date(pass.checkInDateTime);
+                const checkOut = new Date(pass.checkOutDateTime);
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; flex: 1;">Guest: ${pass.guestName}</h3>
+                        <span style="background: ${statusColors[pass.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                            ${pass.status}
+                        </span>
+                    </div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                        <p><i class="fas fa-id-card"></i> ID: ${pass.guestIdNumber}</p>
+                        <p><i class="fas fa-phone"></i> ${pass.guestPhoneNumber}</p>
+                        <p><i class="fas fa-sign-in-alt"></i> Check-in: ${checkIn.toLocaleString()}</p>
+                        <p><i class="fas fa-sign-out-alt"></i> Check-out: ${checkOut.toLocaleString()}</p>
+                        <p><i class="fas fa-info-circle"></i> ${pass.reason}</p>
+                    </div>
+                    ${pass.adminNotes ? `
+                        <div style="margin-top: 10px; padding: 10px; background: ${pass.status === 'REJECTED' ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
+                            <strong>Admin Notes:</strong>
+                            <p style="margin: 5px 0 0 0;">${pass.adminNotes}</p>
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
