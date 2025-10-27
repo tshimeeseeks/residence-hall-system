@@ -2,7 +2,7 @@ package com.rhs.backend.service;
 
 import com.rhs.backend.model.SleepOverPass;
 import com.rhs.backend.model.embedded.GuestDetails;
-import com.rhs.backend.repository.SleepoverPassRepository;
+import com.rhs.backend.repository.SleepOverPassRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,26 +16,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SleepOverService {
 
-    private final SleepoverPassRepository sleepoverPassRepository;
+    private final SleepOverPassRepository sleepOverPassRepository;
 
     /**
      * Create a new sleepover pass application
      */
     @Transactional
-    public SleepOverPass createSleepoverPass(SleepOverPass sleepoverPass) {
+    public SleepOverPass createSleepOverPass(SleepOverPass sleepOverPass) {
         // Check if guest is blacklisted
-        if (isGuestBlacklisted(sleepoverPass.getVisitor())) {
+        if (isGuestBlacklisted(sleepOverPass.getVisitor())) {
             throw new RuntimeException("Guest is blacklisted and cannot be approved for a sleepover pass");
         }
 
         // Check for date conflicts
-        if (hasDateConflict(sleepoverPass)) {
+        if (hasDateConflict(sleepOverPass)) {
             throw new RuntimeException("You already have an active sleepover pass for these dates");
         }
 
         // Save the sleepover pass
-        sleepoverPass.setStatus("PENDING");
-        SleepOverPass savedPass = sleepoverPassRepository.save(sleepoverPass);
+        sleepOverPass.setStatus("PENDING");
+        SleepOverPass savedPass = sleepOverPassRepository.save(sleepOverPass);
 
         log.info("Sleepover pass created: id={}, student={}", savedPass.getId(), savedPass.getStudentId());
         return savedPass;
@@ -45,12 +45,12 @@ public class SleepOverService {
      * Approve a sleepover pass
      */
     @Transactional
-    public SleepOverPass approveSleepoverPass(String passId, String adminId) {
-        SleepOverPass pass = sleepoverPassRepository.findById(passId)
+    public SleepOverPass approveSleepOverPass(String passId, String adminId) {
+        SleepOverPass pass = sleepOverPassRepository.findById(passId)
                 .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
 
         pass.approve(adminId);
-        pass = sleepoverPassRepository.save(pass);
+        pass = sleepOverPassRepository.save(pass);
 
         log.info("Sleepover pass approved: id={}, admin={}", passId, adminId);
         return pass;
@@ -60,12 +60,12 @@ public class SleepOverService {
      * Reject a sleepover pass
      */
     @Transactional
-    public SleepOverPass rejectSleepoverPass(String passId, String adminId, String reason) {
-        SleepOverPass pass = sleepoverPassRepository.findById(passId)
+    public SleepOverPass rejectSleepOverPass(String passId, String adminId, String reason) {
+        SleepOverPass pass = sleepOverPassRepository.findById(passId)
                 .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
 
         pass.reject(adminId, reason);
-        pass = sleepoverPassRepository.save(pass);
+        pass = sleepOverPassRepository.save(pass);
 
         log.info("Sleepover pass rejected: id={}, admin={}, reason={}", passId, adminId, reason);
         return pass;
@@ -75,32 +75,32 @@ public class SleepOverService {
      * Get all sleepover passes for a specific student
      */
     @Transactional(readOnly = true)
-    public List<SleepOverPass> getStudentSleepoverPasses(String studentId) {
-        return sleepoverPassRepository.findByStudentId(studentId);
+    public List<SleepOverPass> getStudentSleepOverPasses(String studentId) {
+        return sleepOverPassRepository.findByStudentId(studentId);
     }
 
     /**
      * Get all pending sleepover passes
      */
     @Transactional(readOnly = true)
-    public List<SleepOverPass> getPendingSleepoverPasses() {
-        return sleepoverPassRepository.findPendingPasses();
+    public List<SleepOverPass> getPendingSleepOverPasses() {
+        return sleepOverPassRepository.findPendingPasses();
     }
 
     /**
      * Get all sleepover passes
      */
     @Transactional(readOnly = true)
-    public List<SleepOverPass> getAllSleepoverPasses() {
-        return sleepoverPassRepository.findAll();
+    public List<SleepOverPass> getAllSleepOverPasses() {
+        return sleepOverPassRepository.findAll();
     }
 
     /**
      * Get a specific sleepover pass by ID
      */
     @Transactional(readOnly = true)
-    public SleepOverPass getSleepoverPassById(String passId) {
-        return sleepoverPassRepository.findById(passId)
+    public SleepOverPass getSleepOverPassById(String passId) {
+        return sleepOverPassRepository.findById(passId)
                 .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
     }
 
@@ -108,15 +108,15 @@ public class SleepOverService {
      * Get all approved and active sleepover passes
      */
     @Transactional(readOnly = true)
-    public List<SleepOverPass> getActiveSleepoverPasses() {
-        return sleepoverPassRepository.findActivePasses(LocalDate.now());
+    public List<SleepOverPass> getActiveSleepOverPasses() {
+        return sleepOverPassRepository.findActivePasses(LocalDate.now());
     }
 
     /**
      * Check if there's a date conflict for the student
      */
     private boolean hasDateConflict(SleepOverPass newPass) {
-        List<SleepOverPass> existingPasses = sleepoverPassRepository.findByStudentId(newPass.getStudentId());
+        List<SleepOverPass> existingPasses = sleepOverPassRepository.findByStudentId(newPass.getStudentId());
 
         for (SleepOverPass existingPass : existingPasses) {
             // Skip rejected passes
@@ -155,10 +155,10 @@ public class SleepOverService {
      */
     @Transactional
     public void deleteSleepoverPass(String passId) {
-        SleepOverPass pass = sleepoverPassRepository.findById(passId)
+        SleepOverPass pass = sleepOverPassRepository.findById(passId)
                 .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
 
-        sleepoverPassRepository.delete(pass);
+        sleepOverPassRepository.delete(pass);
         log.info("Sleepover pass deleted: id={}", passId);
     }
 }

@@ -52,7 +52,7 @@ public class SleepOverController {
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
 
         String studentId = userDetails.getUid();
-        List<SleepOverPass> passes = sleepOverService.getStudentSleepoverPasses(studentId);
+        List<SleepOverPass> passes = sleepOverService.getStudentSleepOverPasses(studentId);
         return ResponseEntity.ok(passes);
     }
 
@@ -61,8 +61,8 @@ public class SleepOverController {
      */
     @GetMapping("/admin")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<List<SleepOverPass>> getAllSleepoverPasses() {
-        List<SleepOverPass> passes = sleepOverService.getAllSleepoverPasses();
+    public ResponseEntity<List<SleepOverPass>> getAllSleepOverPasses() {
+        List<SleepOverPass> passes = sleepOverService.getAllSleepOverPasses();
         return ResponseEntity.ok(passes);
     }
 
@@ -71,8 +71,8 @@ public class SleepOverController {
      */
     @GetMapping("/admin/pending")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<List<SleepOverPass>> getPendingSleepoverPasses() {
-        List<SleepOverPass> passes = sleepOverService.getPendingSleepoverPasses();
+    public ResponseEntity<List<SleepOverPass>> getPendingSleepOverPasses() {
+        List<SleepOverPass> passes = sleepOverService.getPendingSleepOverPasses();
         return ResponseEntity.ok(passes);
     }
 
@@ -80,11 +80,11 @@ public class SleepOverController {
      * Get a specific sleepover pass by ID
      */
     @GetMapping("/{applicationId}")
-    public ResponseEntity<?> getSleepoverPassById(
+    public ResponseEntity<?> getSleepOverPassById(
             @PathVariable String applicationId,
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
-            SleepOverPass pass = sleepOverService.getSleepoverPassById(applicationId);
+            SleepOverPass pass = sleepOverService.getSleepOverPassById(applicationId);
 
             // Check if user has permission to view this pass
             boolean isAdmin = userDetails.isAdmin();
@@ -107,12 +107,12 @@ public class SleepOverController {
      */
     @PutMapping("/{applicationId}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> approveSleepoverPass(
+    public ResponseEntity<?> approveSleepOverPass(
             @PathVariable String applicationId,
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
             String adminId = userDetails.getUid();
-            SleepOverPass approvedPass = sleepOverService.approveSleepoverPass(applicationId, adminId);
+            SleepOverPass approvedPass = sleepOverService.approveSleepOverPass(applicationId, adminId);
             return ResponseEntity.ok(approvedPass);
 
         } catch (Exception e) {
@@ -127,13 +127,13 @@ public class SleepOverController {
      */
     @PutMapping("/{applicationId}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> rejectSleepoverPass(
+    public ResponseEntity<?> rejectSleeOverPass(
             @PathVariable String applicationId,
             @RequestParam String reason,
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
             String adminId = userDetails.getUid();
-            SleepOverPass rejectedPass = sleepOverService.rejectSleepoverPass(
+            SleepOverPass rejectedPass = sleepOverService.rejectSleepOverPass(
                     applicationId, adminId, reason);
             return ResponseEntity.ok(rejectedPass);
 
@@ -152,7 +152,7 @@ public class SleepOverController {
             @PathVariable String applicationId,
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
-            SleepOverPass pass = sleepOverService.getSleepoverPassById(applicationId);
+            SleepOverPass pass = sleepOverService.getSleepOverPassById(applicationId);
 
             // Check if user has permission to delete
             boolean isAdmin = userDetails.isAdmin();
@@ -178,8 +178,8 @@ public class SleepOverController {
      */
     @GetMapping("/admin/active")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<List<SleepOverPass>> getActiveSleepoverPasses() {
-        List<SleepOverPass> passes = sleepOverService.getActiveSleepoverPasses();
+    public ResponseEntity<List<SleepOverPass>> getActiveSleepOverPasses() {
+        List<SleepOverPass> passes = sleepOverService.getActiveSleepOverPasses();
         return ResponseEntity.ok(passes);
     }
 }

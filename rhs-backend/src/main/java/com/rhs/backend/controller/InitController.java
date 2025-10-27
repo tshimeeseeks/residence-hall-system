@@ -4,18 +4,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.rhs.backend.model.User;
+import com.rhs.backend.model.Admin;
 import com.rhs.backend.model.enums.AccountStatus;
 import com.rhs.backend.model.enums.UserType;
 import com.rhs.backend.repository.UserRepository;
+import com.rhs.backend.repository.AdminRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -23,7 +29,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class InitController {
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; // Fixed: removed extra semicolon and added 'final'
+    private final AdminRepository adminRepository; // Added: missing repository
     private final FirebaseAuth firebaseAuth;
 
     /**

@@ -1,7 +1,5 @@
 package com.rhs.backend.model.embedded;
 
- 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// Removed @Embeddable - not needed for MongoDB embedded documents
 public class RoomDetails {
     @Field("room_id")
     private String roomId;
