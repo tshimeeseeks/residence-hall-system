@@ -118,8 +118,8 @@ public class AuthService {
         admin.setFirstName(request.getFirstName());
         admin.setLastName(request.getLastName());
         admin.setPhoneNumber(request.getPhoneNumber());
-        admin.setUserType(UserType.ADMIN);
-        admin.setAccountStatus(AccountStatus.APPROVED);
+        admin.setUserType(UserType.ADMIN);  // Set enum directly
+        admin.setAccountStatus(AccountStatus.APPROVED);  // Set enum directly
         admin.setIsEnabled(true);
         admin.setApprovedByAdminId(creatorAdminId);
         admin.setApprovalDate(LocalDateTime.now());
