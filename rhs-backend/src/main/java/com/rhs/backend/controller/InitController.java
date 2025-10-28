@@ -29,8 +29,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InitController {
 
-    private final UserRepository userRepository;  // Fixed: removed extra semicolon and added 'final'
-    private final AdminRepository adminRepository;  // Added: missing repository
+    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final FirebaseAuth firebaseAuth;
 
     /**
@@ -65,8 +65,8 @@ public class InitController {
                     .firstName("Master")
                     .lastName("Administrator")
                     .phoneNumber("0000000000")
-                    .userType(UserType.SUPER_ADMIN)
-                    .accountStatus(AccountStatus.APPROVED)
+                    .userType(UserType.SUPER_ADMIN.name())  // Convert enum to String
+                    .accountStatus(AccountStatus.APPROVED.name())  // Convert enum to String
                     .isEnabled(true)
                     .createdAt(LocalDateTime.now())
                     .build();
