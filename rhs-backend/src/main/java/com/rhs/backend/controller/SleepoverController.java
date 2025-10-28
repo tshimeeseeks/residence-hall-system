@@ -148,7 +148,7 @@ public class SleepOverController {
      * Delete a sleepover pass (Admin only or Student who owns it)
      */
     @DeleteMapping("/{applicationId}")
-    public ResponseEntity<?> deleteSleepoverPass(
+    public ResponseEntity<?> deleteSleepOverPass(
             @PathVariable String applicationId,
             @AuthenticationPrincipal FirebaseUserDetails userDetails) {
         try {
@@ -163,7 +163,7 @@ public class SleepOverController {
                         Map.of("error", "Access denied"));
             }
 
-            sleepOverService.deleteSleepoverPass(applicationId);
+            sleepOverService.deleteSleepOverPass(applicationId);
             return ResponseEntity.ok(Map.of("message", "Sleepover pass deleted successfully"));
 
         } catch (Exception e) {

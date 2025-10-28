@@ -29,8 +29,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InitController {
 
-    private final UserRepository userRepository; // Fixed: removed extra semicolon and added 'final'
-    private final AdminRepository adminRepository; // Added: missing repository
+    private final UserRepository userRepository;  // Fixed: removed extra semicolon and added 'final'
+    private final AdminRepository adminRepository;  // Added: missing repository
     private final FirebaseAuth firebaseAuth;
 
     /**

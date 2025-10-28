@@ -4,7 +4,6 @@ import com.rhs.backend.model.embedded.GuestDetails;
 import com.rhs.backend.model.enums.AccountStatus;
 import com.rhs.backend.model.enums.UserType;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

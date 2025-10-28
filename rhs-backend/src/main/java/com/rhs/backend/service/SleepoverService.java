@@ -154,7 +154,7 @@ public class SleepOverService {
      * Delete a sleepover pass
      */
     @Transactional
-    public void deleteSleepoverPass(String passId) {
+    public void deleteSleepOverPass(String passId) {
         SleepOverPass pass = sleepOverPassRepository.findById(passId)
                 .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
 
