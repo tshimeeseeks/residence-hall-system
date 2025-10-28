@@ -1,34 +1,28 @@
 package com.rhs.backend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.index.Indexed;
-import com.rhs.backend.model.enums.UserType;
-import com.rhs.backend.model.enums.AccountStatus;
-import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
-@Document(collection = "users")
+import java.time.LocalDateTime;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true) // ADD toBuilder = true
+@Document(collection = "users")
 public class User {
+
     @Id
     private String id;
 
     @Field("firebase_uid")
-    @Indexed(unique = true)
     private String firebaseUid;
 
     @Field("email")
-    @Indexed(unique = true)
     private String email;
 
     @Field("first_name")
@@ -41,31 +35,52 @@ public class User {
     private String phoneNumber;
 
     @Field("user_type")
-    private UserType userType;
+    private String userType; // "ADMIN", "STUDENT", "STAFF", etc.
+
+    @Field("department")
+    private String department;
 
     @Field("account_status")
-    private AccountStatus accountStatus;
+    private String accountStatus; // "APPROVED", "PENDING", "REJECTED", "DELETED"
 
     @Field("is_enabled")
     private Boolean isEnabled;
 
-    @Field("approved_by_admin_id")
-    private String approvedByAdminId;
+    @Field("admin_permissions")
+    private Map<String, Object> adminPermissions;
 
-    @Field("approval_date")
-    private LocalDateTime approvalDate;
-
-    @Field("rejection_reason")
-    private String rejectionReason;
-
-    @CreatedDate
     @Field("created_at")
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Field("updated_at")
     private LocalDateTime updatedAt;
 
-    @Field("last_login")
-    private LocalDateTime lastLogin;
+    @Field("_class")
+    private String classType = "com.rhs.backend.model.Admin";
+
+    // Constructor for creating new users
+    public User(String firebaseUid, String email, String firstName, String lastName, String userType) {
+        this.firebaseUid = firebaseUid;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userType = userType;
+        this.accountStatus = "PENDING";
+        this.isEnabled = false;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Helper method to check if user is admin
+    public boolean isAdmin() {
+        return "ADMIN".equals(this.userType) &&
+                "APPROVED".equals(this.accountStatus) &&
+                Boolean.TRUE.equals(this.isEnabled);
+    }
+
+    // Helper method to check if user is active
+    public boolean isActive() {
+        return "APPROVED".equals(this.accountStatus) &&
+                Boolean.TRUE.equals(this.isEnabled);
+    }
 }

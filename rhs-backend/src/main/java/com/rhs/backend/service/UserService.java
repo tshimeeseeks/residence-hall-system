@@ -1,111 +1,135 @@
 package com.rhs.backend.service;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import com.rhs.backend.model.User;
 import com.rhs.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.rhs.backend.dto.UserProfileDTO;
+import com.rhs.backend.dto.ChangePasswordDTO;
+import com.rhs.backend.dto.UserStatusDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final FirebaseAuth firebaseAuth;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private FirebaseAuth firebaseAuth;
 
     /**
-     * Get all users
+     * Verify Firebase token and get user from MongoDB
      */
-    @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+    public User getUserByFirebaseToken(String token) throws Exception {
+        // Verify Firebase token
+        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
+        String firebaseUid = decodedToken.getUid();
 
-    /**
-     * Get user by Firebase UID
-     */
-    @Transactional(readOnly = true)
-    public Optional<User> getUserByFirebaseUid(String firebaseUid) {
-        return userRepository.findByFirebaseUid(firebaseUid);
-    }
+        // Get user from MongoDB using firebase_uid
+        User user = userRepository.findByFirebaseUid(firebaseUid);
 
-    /**
-     * Get user by ID
-     */
-    @Transactional(readOnly = true)
-    public User getUserById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    /**
-     * Update user profile
-     */
-    @Transactional
-    public User updateUser(String firebaseUid, String firstName, String lastName,
-            String roomNumber, String phoneNumber) {
-        User user = userRepository.findByFirebaseUid(firebaseUid)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (firstName != null)
-            user.setFirstName(firstName);
-        if (lastName != null)
-            user.setLastName(lastName);
-        if (phoneNumber != null)
-            user.setPhoneNumber(phoneNumber);
-
-        user.setUpdatedAt(LocalDateTime.now());
-
-        user = userRepository.save(user);
-        log.info("User updated: {}", firebaseUid);
+        if (user == null) {
+            throw new Exception("User not found in database");
+        }
 
         return user;
     }
 
     /**
-     * Delete user (admin only)
+     * Check if user is admin
      */
-    @Transactional
-    public void deleteUser(String firebaseUid) {
-        try {
-            // Delete from Firebase
-            firebaseAuth.deleteUser(firebaseUid);
+    public boolean isAdmin(String token) throws Exception {
+        User user = getUserByFirebaseToken(token);
+        return "ADMIN".equals(user.getUserType()) &&
+                "APPROVED".equals(user.getAccountStatus());
+    }
 
-            // Delete from MongoDB
-            User user = userRepository.findByFirebaseUid(firebaseUid)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    /**
+     * Update user profile
+     */
+    public User updateUserProfile(String token, UserProfileDTO profileUpdate) throws Exception {
+        User user = getUserByFirebaseToken(token);
 
-            userRepository.delete(user);
-
-            log.info("User deleted: {}", firebaseUid);
-
-        } catch (FirebaseAuthException e) {
-            log.error("Error deleting user from Firebase: {}", e.getMessage());
-            throw new RuntimeException("Failed to delete user: " + e.getMessage());
+        // Update allowed fields
+        if (profileUpdate.getFirstName() != null) {
+            user.setFirstName(profileUpdate.getFirstName());
         }
+        if (profileUpdate.getLastName() != null) {
+            user.setLastName(profileUpdate.getLastName());
+        }
+        if (profileUpdate.getPhoneNumber() != null) {
+            user.setPhoneNumber(profileUpdate.getPhoneNumber());
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+        return userRepository.save(user);
     }
 
     /**
-     * Get user by email
+     * Change user password (updates Firebase)
      */
-    @Transactional(readOnly = true)
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public void changePassword(String token, ChangePasswordDTO passwordDTO) throws Exception {
+        User user = getUserByFirebaseToken(token);
+
+        // Update password in Firebase
+        firebaseAuth.updateUser(
+                com.google.firebase.auth.UserRecord.UpdateRequest.builder()
+                        .setUid(user.getFirebaseUid())
+                        .setPassword(passwordDTO.getNewPassword())
+                        .build());
     }
 
     /**
-     * Check if user exists by Firebase UID
+     * Get all users (admin only)
      */
-    @Transactional(readOnly = true)
-    public boolean userExists(String firebaseUid) {
-        return userRepository.existsByFirebaseUid(firebaseUid);
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Get user by ID (admin only)
+     */
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * Update user status (admin only)
+     */
+    public User updateUserStatus(String id, UserStatusDTO statusDTO) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        if (statusDTO.getIsEnabled() != null) {
+            user.setIsEnabled(statusDTO.getIsEnabled());
+        }
+
+        if (statusDTO.getAccountStatus() != null) {
+            user.setAccountStatus(statusDTO.getAccountStatus());
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * Soft delete user (admin only)
+     */
+    public void softDeleteUser(String id) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        user.setIsEnabled(false);
+        user.setAccountStatus("DELETED");
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepository.save(user);
     }
 }

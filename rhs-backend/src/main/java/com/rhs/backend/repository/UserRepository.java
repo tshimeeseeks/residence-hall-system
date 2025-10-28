@@ -1,14 +1,9 @@
 package com.rhs.backend.repository;
 
 import com.rhs.backend.model.User;
-import com.rhs.backend.model.enums.AccountStatus;
-import com.rhs.backend.model.enums.UserType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,8 +11,9 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     /**
      * Find user by Firebase UID
+     * This is the key method to link Firebase auth with MongoDB storage
      */
-    Optional<User> findByFirebaseUid(String firebaseUid);
+    User findByFirebaseUid(String firebaseUid);
 
     /**
      * Find user by email
@@ -25,42 +21,22 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
 
     /**
-     * Find users by user type
+     * Find all users by user type
      */
-    List<User> findByUserType(UserType userType);
+    java.util.List<User> findByUserType(String userType);
 
     /**
-     * Find users by account status
+     * Find all users by account status
      */
-    List<User> findByAccountStatus(AccountStatus status);
+    java.util.List<User> findByAccountStatus(String accountStatus);
 
     /**
-     * Find enabled users
+     * Find all enabled users
      */
-    List<User> findByIsEnabled(Boolean isEnabled);
+    java.util.List<User> findByIsEnabled(Boolean isEnabled);
 
     /**
-     * Check if email exists
+     * Find users by department
      */
-    boolean existsByEmail(String email);
-
-    /**
-     * Check if Firebase UID exists
-     */
-    boolean existsByFirebaseUid(String firebaseUid);
-
-    /**
-     * Find all admins (ADMIN and SUPER_ADMIN)
-     */
-    List<User> findByUserTypeIn(List<UserType> userTypes);
-
-    /**
-     * Count users by user type
-     */
-    long countByUserType(UserType userType);
-
-    /**
-     * Find all users with pagination
-     */
-    Page<User> findAll(Pageable pageable);
+    java.util.List<User> findByDepartment(String department);
 }
