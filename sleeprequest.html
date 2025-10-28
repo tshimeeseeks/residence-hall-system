@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleepover Request</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Sleepover Pass Request</h2>
+        </div>
+        <p class="subtitle">Request a guest overnight pass</p>
+
+        <form id="sleepoverForm">
+            <h3>Guest Information</h3>
+            
+            <label for="guestName">Guest Full Name</label>
+            <input type="text" id="guestName" required placeholder="Enter guest's full name" />
+
+            <label for="guestIdNumber">Guest ID Number</label>
+            <input type="text" id="guestIdNumber" required placeholder="Enter ID number" />
+
+            <label for="guestPhone">Guest Phone Number</label>
+            <input type="tel" id="guestPhone" required placeholder="e.g., +27 71 234 5678" />
+
+            <label for="guestEmail">Guest Email (Optional)</label>
+            <input type="email" id="guestEmail" placeholder="guest@example.com" />
+
+            <label for="relationship">Relationship to Guest</label>
+            <select id="relationship" required>
+                <option value="">Select Relationship</option>
+                <option value="FAMILY">Family Member</option>
+                <option value="FRIEND">Friend</option>
+                <option value="PARTNER">Partner</option>
+                <option value="OTHER">Other</option>
+            </select>
+
+            <h3>Visit Details</h3>
+
+            <label for="checkInDate">Check-in Date</label>
+            <input type="date" id="checkInDate" required />
+
+            <label for="checkInTime">Check-in Time</label>
+            <input type="time" id="checkInTime" required />
+
+            <label for="checkOutDate">Check-out Date</label>
+            <input type="date" id="checkOutDate" required />
+
+            <label for="checkOutTime">Check-out Time</label>
+            <input type="time" id="checkOutTime" required />
+
+            <label for="reason">Reason for Visit</label>
+            <textarea id="reason" rows="3" required placeholder="Brief reason for the overnight visit"></textarea>
+
+            <label for="guestId">Upload Guest ID Document</label>
+            <input type="file" id="guestId" accept="image/*,application/pdf" required />
+            <small>Required: Copy of guest's ID (Image or PDF, Max 5MB)</small>
+
+            <button type="submit" class="btn">Submit Request</button>
+        </form>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        let selectedIdFile = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(false);
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkInDate').min = today;
+            document.getElementById('checkOutDate').min = today;
+        });
+
+        document.getElementById('guestId').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    e.target.value = '';
+                    return;
+                }
+                selectedIdFile = file;
+            }
+        });
+
+        // Validate check-out is after check-in
+        document.getElementById('checkOutDate').addEventListener('change', validateDates);
+        document.getElementById('checkInDate').addEventListener('change', validateDates);
+
+        function validateDates() {
+            const checkIn = new Date(document.getElementById('checkInDate').value);
+            const checkOut = new Date(document.getElementById('checkOutDate').value);
+
+            if (checkOut < checkIn) {
+                alert('Check-out date must be after check-in date');
+                document.getElementById('checkOutDate').value = '';
+            }
+        }
+
+        document.getElementById('sleepoverForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                // Upload ID document
+                let idDocumentUrl = null;
+                if (selectedIdFile) {
+                    const user = firebase.auth().currentUser;
+                    const storageRef = firebase.storage().ref();
+                    const idRef = storageRef.child(`sleepover-ids/${user.uid}/${Date.now()}_${selectedIdFile.name}`);
+                    
+                    await idRef.put(selectedIdFile);
+                    idDocumentUrl = await idRef.getDownloadURL();
+                }
+
+                // Prepare request data
+                const checkInDateTime = `${document.getElementById('checkInDate').value}T${document.getElementById('checkInTime').value}:00`;
+                const checkOutDateTime = `${document.getElementById('checkOutDate').value}T${document.getElementById('checkOutTime').value}:00`;
+
+                const requestData = {
+                    guestName: document.getElementById('guestName').value,
+                    guestIdNumber: document.getElementById('guestIdNumber').value,
+                    guestPhoneNumber: document.getElementById('guestPhone').value,
+                    guestEmail: document.getElementById('guestEmail').value || null,
+                    relationship: document.getElementById('relationship').value,
+                    checkInDateTime: checkInDateTime,
+                    checkOutDateTime: checkOutDateTime,
+                    reason: document.getElementById('reason').value,
+                    guestIdDocumentUrl: idDocumentUrl
+                };
+
+                const response = await apiCall(API_ENDPOINTS.SLEEPOVER.CREATE, {
+                    method: 'POST',
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                console.log('Sleepover pass requested:', result);
+
+                alert('Sleepover pass request submitted successfully! Awaiting admin approval.');
+                window.location.href = 'sleepstatus.html';
+
+            } catch (error) {
+                console.error('Error submitting request:', error);
+                alert('Failed to submit request: ' + error.message);
+                submitBtn.textContent = 'Submit Request';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

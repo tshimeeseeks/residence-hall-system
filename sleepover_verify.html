@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Sleepover</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Header Section -->
+      <div class="header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+        <h2>Verify Sleepover Request</h2>
+      </div>
+
+      <!-- Student and Visitor Info -->
+      <div class="student-info">
+        <h3 id="studentName">Student Name</h3>
+
+        <div class="info-item">
+          <i class="fa-solid fa-id-card"></i>
+          <div>
+            <p class="label">Visitor ID</p>
+            <p id="visitorId"></p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-user"></i>
+          <div>
+            <p class="label">Visitor Name</p>
+            <p id="visitorName"></p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-user-graduate"></i>
+          <div>
+            <p class="label">Student Name</p>
+            <p id="studentNameDisplay"></p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-door-closed"></i>
+          <div>
+            <p class="label">Room Number</p>
+            <p id="roomNumber"></p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-calendar-days"></i>
+          <div>
+            <p class="label">Requested Date (From)</p>
+            <p id="requestDateFrom"></p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-calendar-check"></i>
+          <div>
+            <p class="label">Requested Date (To)</p>
+            <p id="requestDateTo"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="approve-btn" id="approveBtn">
+          <i class="fa-solid fa-check"></i> Approve
+        </button>
+        <button class="deny-btn" id="denyBtn">
+          <i class="fa-solid fa-xmark"></i> Deny
+        </button>
+      </div>
+    </div>
+
+    <!-- External JS File -->
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Sign Up</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <!-- Header -->
+      <div class="form-header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2>Admin Sign Up</h2>
+      </div>
+
+      <!-- Subtitle -->
+      <p class="subtitle">Create an account</p>
+
+      <!-- Form -->
+      <form action="login.html" method="get" class="signup-form">
+        <label>Enter Name</label>
+        <input type="text" placeholder="Name..." required />
+
+        <label>Enter Surname</label>
+        <input type="text" placeholder="Surname..." required />
+
+        <label>Enter Email</label>
+        <input type="email" placeholder="Ex: email@gmail.com..." required />
+
+        <label>Create Password</label>
+        <input type="password" placeholder="********" required />
+
+        <label>Repeat Password</label>
+        <input type="password" placeholder="********" required />
+
+        <button type="submit" class="btn signup-btn">Sign Up</button>
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+      </form>
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

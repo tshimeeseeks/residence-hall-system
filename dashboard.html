@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="section-title">
+            <button class="home-btn" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+
+            <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+            <h3>Welcome, <span id="userName">Student</span>!</h3>
+            <p class="subtitle">Residence Hall Management System</p>
+        </div>
+
+        <div class="options-grid">
+            <a href="maintanance.html" class="option-card">
+                <i class="fas fa-tools"></i>
+                <p>Maintenance</p>
+            </a>
+            <a href="sleep.html" class="option-card">
+                <i class="fas fa-bed"></i>
+                <p>Sleepover</p>
+            </a>
+            <a href="query.html" class="option-card">
+                <i class="fas fa-question-circle"></i>
+                <p>Queries</p>
+            </a>
+            <a href="emergency.html" class="option-card">
+                <i class="fas fa-ambulance"></i>
+                <p>Emergency</p>
+            </a>
+            <a href="settings.html" class="option-card">
+                <i class="fas fa-cog"></i>
+                <p>Settings</p>
+            </a>
+            <a href="account.html" class="option-card">
+                <i class="fas fa-user"></i>
+                <p>Account</p>
+            </a>
+        </div>
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+    
+    <script>
+        // Protect page - students only
+        document.addEventListener('DOMContentLoaded', async () => {
+            const auth = await protectPage(false); // false = not admin-only
+            
+            if (auth) {
+                // Fetch and display user info
+                try {
+                    const response = await apiCall(API_ENDPOINTS.AUTH.ME);
+                    const data = await response.json();
+                    
+                    document.getElementById('userName').textContent = data.firstName || 'Student';
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

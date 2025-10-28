@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2><i class="fas fa-cog"></i>Account Settings</h2>
+      </div>
+
+      <p class="subtitle">Update your account information</p>
+      <form class="signup-form">
+        <label for="username">Change Username</label>
+        <input type="text" id="username" placeholder="Enter new username" />
+
+        <label for="username">Change Student Number</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter new Student number"
+        />
+
+        <label for="username">Change Room Number</label>
+        <input type="text" id="username" placeholder="Enter new Room number" />
+
+        <label for="username">Change Email Address</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Enter new Email address"
+        />
+
+        <label for="username">Change Phone Number</label>
+        <input type="text" id="username" placeholder="Enter new Phone number" />
+
+        <label for="password">Change Password</label>
+        <input type="password" id="password" placeholder="Enter new password" />
+
+        <button class="signup-btn">Save Changes</button>
+      </form>
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

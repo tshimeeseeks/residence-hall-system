@@ -1,0 +1,1044 @@
+/*====== BODY FOR BOTH USER END ADMIN END  =====*/
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fddfbc 20%, #da8858 50%, white 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+  opacity: 10;
+  transition: opacity 0.4s ease;
+}
+/*==== BODY ANIMATION === */
+body.fade-in {
+  opacity: 1;
+}
+
+h1,
+h2 {
+  color: #333;
+  text-align: center;
+  justify-content: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+label {
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fddfbc;
+}
+
+p {
+  font-weight: bold;
+}
+
+/* Optional subtle animation for more professionalism */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+/*======CONTAINER FOR INDEX.HTML( START UP PAGE)=====*/
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+}
+
+/* WEB APP LOGO */
+.logo {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px;
+}
+
+.btn {
+  display: inline-block;
+  margin: 15px 0;
+  padding: 10px;
+  background: #da8858;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: 0.3s;
+  text-align: center;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #fddfbc;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.options {
+  list-style: none;
+  padding: 0;
+}
+
+.options li {
+  margin: 10px 0;
+}
+
+.options a {
+  color: #da8858;
+  text-decoration: none;
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+  background: rgb(255, 255, 255);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Header */
+/* 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} */
+
+/* .icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+} */
+
+/* Welcome */
+.welcome {
+  margin: 15px 0;
+  font-size: 14px;
+  text-align: center;
+  color: #333;
+}
+
+/* Section title */
+.section-title {
+  margin: 20px 0 10px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  color: #064420;
+}
+
+/* Grid */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.option-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px #da8858;
+}
+
+.option-card i {
+  font-size: 28px;
+  color: #ff6600;
+  margin-bottom: 10px;
+}
+
+/* OPTION BUTTON */
+.option-card p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: BOld;
+  color: #333;
+}
+
+/* Form Container */
+.form-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Header */
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-header h2 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 22px;
+  color: #064420;
+}
+
+/* SUB TEXT UNDER HEADING*/
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  margin: 10px 0 20px;
+  color: #333;
+}
+
+/* Input Fields */
+.signup-form label {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 8px 0 5px;
+  display: block;
+  color: #333;
+}
+
+.signup-form input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #fddfbc; /* soft orange background */
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#message {
+  height: 100px;
+}
+
+/* Sign Up Button */
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background: #da8858;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.signup-btn:hover {
+  background: #e65c00;
+}
+.footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.footer a {
+  color: #333;
+  font-size: 22px;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: #ff6600; /* orange hover effect */
+}
+
+/* ===============================
+   RESPONSIVE DESIGN (Mobile-first)
+   =============================== */
+
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    padding: 20px;
+  }
+
+  .container,
+  .dashboard-container,
+  .form-container {
+    width: 100%;
+    max-width: 90%;
+    padding: 20px;
+    margin-top: 40px;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr; /* stack cards vertically */
+    gap: 20px;
+  }
+
+  .option-card {
+    padding: 15px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .signup-form input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .signup-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .footer {
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .footer a {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1,
+  h2 {
+    font-size: 18px;
+  }
+
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  .option-card i {
+    font-size: 24px;
+  }
+
+  .option-card p {
+    font-size: 13px;
+  }
+
+  .signup-form input {
+    font-size: 13px;
+  }
+
+  .signup-btn {
+    font-size: 13px;
+  }
+}
+
+.image {
+  width: 200px;
+  height: 200px;
+  background-image: transparent;
+}
+
+/* Back & Home Buttons */
+.back-btn,
+.home-btn {
+  position: absolute;
+  top: 20px;
+  background: #da8858;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover,
+.home-btn:hover {
+  background: #fddfbc;
+  color: #333;
+}
+
+/* Position home button slightly to the right of back */
+.home-btn {
+  left: 70px;
+}
+
+.back-btn {
+  left: 20px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .back-btn,
+  .home-btn {
+    top: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .home-btn {
+    left: 60px;
+  }
+
+  .back-btn {
+    left: 15px;
+  }
+}
+
+/* QUERY TEXT */
+#message {
+  width: 100%;
+  min-height: 200px;
+  max-height: 400px;
+  padding: 10px;
+  resize: vertical;
+  overflow-y: auto;
+  font-size: 16px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  background: #fddfbc;
+  border: none;
+}
+#wordCount {
+  font-size: 14px;
+  color: #555;
+  margin-top: 5px;
+}
+
+/* Emergency Numbers*/
+.emergency-card {
+  background: #da8858;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  height: 85px;
+}
+.emergency-card:hover {
+  transform: translateY(-5px);
+  background-color: #fddfbc;
+  box-shadow: 0 4px 12px #e65c00;
+}
+
+/* PICTURE UPLOAD */
+.upload-section {
+  margin-top: 15px;
+}
+
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #da8858;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 150px;
+  height: 40px;
+  justify-content: center;
+}
+
+.upload-button:hover {
+  background-color: #fddfbc;
+}
+
+#image-preview {
+  margin-top: 15px;
+  max-width: 100%;
+}
+
+#image-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+/* Submit Button */
+.submit-btn {
+  background-color: #da8858;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #e65c00;
+}
+
+/* Loading spinner */
+.submit-btn.loading {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.submit-btn.loading::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border: 3px solid white;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success state */
+.submit-btn.success {
+  background-color: #28a745;
+}
+
+.submit-btn.success::after {
+  content: "✔";
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+/* SLEEP OVER STATUS REQUEST */
+
+.status-container {
+  max-width: 500px;
+  width: 90%;
+  background: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.status-box {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  transition: all 0.3s ease;
+}
+
+.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.accepted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.declined {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.date-requested {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* --- STARTUP OVERLAY --- */
+.startup-overlay {
+  position: fixed;
+  inset: 0;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  transition: opacity 1s ease;
+}
+
+.startup-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.startup-logo {
+  width: 180px;
+  opacity: 0;
+  animation: logoFadeIn 1.8s ease forwards;
+}
+
+@keyframes logoFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* --- PAGE FADE IN AFTER STARTUP --- */
+.fade-in {
+  opacity: 0;
+  animation: fadeInContent 1.5s ease forwards;
+  animation-delay: 1.8s;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Home/Exit Button */
+.home-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #da8858;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.home-btn:hover {
+  background: #fddfbc;
+  color: #333;
+}
+
+@media (max-width: 480px) {
+  .home-btn {
+    top: 15px;
+    left: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+}
+
+/* ADMIN SIDE FOR REQUEST LIST BUTTONS */
+.request-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 5px;
+}
+
+/*  */
+.approve-btn,
+.deny-btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+.approve-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.deny-btn {
+  background-color: #e53935;
+  color: white;
+}
+
+.approve-btn:hover,
+.deny-btn:hover {
+  transform: scale(1.05);
+}
+
+/* ===============================
+   Maintenance Request Page Styles
+   =============================== */
+.request-details p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.image-section {
+  margin: 15px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.feedback-section {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.feedback-section label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.feedback-section textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.feedback-section button {
+  background-color: #da8858;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.feedback-section button:hover {
+  background-color: #c86d3c;
+}
+
+/* ==========================
+   ACCOUNT PAGE
+========================== */
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  background: #fddfbc;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-item i {
+  font-size: 24px;
+  margin-right: 12px;
+  color: #da8858;
+}
+
+.info-item .label {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.info-item p {
+  margin: 0;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.edit-btn,
+.logout-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+
+.edit-btn {
+  background-color: #da8858;
+}
+
+.edit-btn:hover {
+  background-color: #c26a3f;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/* ==========================
+   SLEEPOVER VERIFICATION PAGE
+========================== */
+
+.student-info {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  background: #fddfbc;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-item i {
+  font-size: 22px;
+  margin-right: 12px;
+  color: #da8858;
+}
+
+.info-item .label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.info-item p {
+  margin: 0;
+  color: #333;
+}
+
+.request-details {
+  margin-top: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.request-details h4 {
+  margin-bottom: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.approve-btn,
+.deny-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  color: white;
+}
+
+.approve-btn {
+  background-color: #2ecc71;
+}
+
+.approve-btn:hover {
+  background-color: #27ae60;
+}
+
+.deny-btn {
+  background-color: #e74c3c;
+}
+
+.deny-btn:hover {
+  background-color: #c0392b;
+}
+
+/* COME BACK TO THIS!!! */
+.Housebackground {
+  position: absolute; /* Positions image behind other elements */
+  top: 0;
+  left: 0;
+  width: 100%; /* Make it fit container width */
+  height: 100%; /* Make it fit container height */
+  object-fit: cover; /* Ensures the image covers the area properly */
+  opacity: 0.15; /* Makes it transparent so cards are visible */
+  z-index: 0; /* Places the image behind the dashboard content */
+  border-radius: 12px; /* Optional: matches container's shape if rounded */
+}
+.Housebackground {
+  filter: blur(1px);
+  opacity: 0.12;
+}
+
+/* OVERRIDING A FEW ISSUE!! */
+/* === Fix Dashboard Button Click Issues === */
+.dashboard-container {
+  position: relative;
+  z-index: 2; /* make sure it's above overlays */
+}
+
+.option-card,
+.btn,
+button {
+  position: relative;
+  z-index: 3; /* keep buttons on top of anything else */
+  pointer-events: auto; /* ensure clicks go through */
+}
+
+.Housebackground {
+  z-index: 0; /* stays behind content */
+  pointer-events: none; /* prevents it from blocking buttons */
+}
+
+/* STUDENT DETAIL CSS */
+.delete-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #e63939;
+}
+
+/* Confirmation box */
+.confirm-box {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  width: 280px;
+  text-align: center;
+  z-index: 10;
+}
+
+.confirm-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.confirm-yes {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.confirm-no {
+  background: #ccc;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+}
+
+.hidden {
+  display: none;
+}

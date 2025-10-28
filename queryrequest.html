@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Queries</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <button class="back-btn" onclick="goBack()">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <h2><i class="fa-solid fa-person-circle-question"></i>Query</h2>
+      </div>
+
+      <p class="subtitle">Submit your query or question</p>
+
+      <form class="signup-form">
+        <label for="query-type">Query Type</label>
+        <input type="text" id="query-type" placeholder="Type of query" />
+
+        <!-- HTML -->
+        <label for="message">Your Query:</label>
+        <textarea
+          id="message"
+          name="message"
+          placeholder="Type your query here..."
+          maxlength="2000"
+        ></textarea>
+        <div id="wordCount">0 / 200 words</div>
+
+        <button class="submit-btn" onclick="simulateSubmit(this)">Send</button>
+      </form>
+      <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+  </body>
+  <script src="script.js"></script>
+</html>

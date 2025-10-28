@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Maintenance</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Maintenance Management</h2>
+        </div>
+
+        <!-- Filter Options -->
+        <div style="margin-bottom: 20px;">
+            <select id="statusFilter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
+            </select>
+            <select id="priorityFilter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; margin-left: 10px;">
+                <option value="">All Priority</option>
+                <option value="URGENT">Urgent</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+            </select>
+        </div>
+
+        <div id="loadingMessage">Loading maintenance requests...</div>
+        <div id="requestsList" style="display: none;"></div>
+        <div id="emptyMessage" style="display: none; text-align: center; padding: 20px;">
+            No maintenance requests found.
+        </div>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        let allRequests = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(true); // Admin only
+            loadAllRequests();
+
+            // Add filter listeners
+            document.getElementById('statusFilter').addEventListener('change', filterRequests);
+            document.getElementById('priorityFilter').addEventListener('change', filterRequests);
+        });
+
+        async function loadAllRequests() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.MAINTENANCE.GET_ALL);
+                allRequests = await response.json();
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                if (allRequests.length === 0) {
+                    document.getElementById('emptyMessage').style.display = 'block';
+                } else {
+                    document.getElementById('requestsList').style.display = 'block';
+                    displayRequests(allRequests);
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                document.getElementById('loadingMessage').textContent = 
+                    'Error loading requests: ' + error.message;
+            }
+        }
+
+        function filterRequests() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+
+            const filtered = allRequests.filter(request => {
+                const matchStatus = !statusFilter || request.status === statusFilter;
+                const matchPriority = !priorityFilter || request.priority === priorityFilter;
+                return matchStatus && matchPriority;
+            });
+
+            displayRequests(filtered);
+        }
+
+        function displayRequests(requests) {
+            const container = document.getElementById('requestsList');
+            container.innerHTML = '';
+
+            requests.forEach(request => {
+                const statusColors = {
+                    'PENDING': '#FFA500',
+                    'IN_PROGRESS': '#2196F3',
+                    'RESOLVED': '#4CAF50',
+                    'REJECTED': '#F44336'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'request-card';
+                card.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background: white;
+                `;
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 5px 0;">${request.title}</h3>
+                            <p style="color: #666; margin: 5px 0;">${request.description}</p>
+                            <div style="font-size: 14px; color: #888; margin-top: 10px;">
+                                <span><i class="fas fa-user"></i> ${request.studentName}</span> |
+                                <span><i class="fas fa-door-closed"></i> Room ${request.roomNumber || 'N/A'}</span> |
+                                <span><i class="fas fa-tag"></i> ${request.category}</span> |
+                                <span style="color: ${request.priority === 'URGENT' ? 'red' : 'inherit'};">
+                                    ${request.priority}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="text-align: right; margin-left: 20px;">
+                            <span style="background: ${statusColors[request.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-bottom: 10px;">
+                                ${request.status}
+                            </span>
+                            ${request.status === 'PENDING' ? `
+                                <button onclick="updateStatus('${request.id}', 'IN_PROGRESS')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
+                                    Start Work
+                                </button>
+                            ` : ''}
+                            ${request.status === 'IN_PROGRESS' ? `
+                                <button onclick="resolveRequest('${request.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
+                                    Mark Resolved
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ${request.photoUrls && request.photoUrls.length > 0 ? `
+                        <div style="margin-top: 10px;">
+                            <img src="${request.photoUrls[0]}" alt="Issue photo" style="max-width: 200px; border-radius: 5px; cursor: pointer;" onclick="window.open('${request.photoUrls[0]}', '_blank')">
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (requests.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px;">No requests match the selected filters.</p>';
+            }
+        }
+
+        async function updateStatus(requestId, newStatus) {
+            if (!confirm(`Update status to ${newStatus}?`)) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.MAINTENANCE.UPDATE_STATUS(requestId), {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                alert('Status updated successfully!');
+                loadAllRequests(); // Reload
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Failed to update status: ' + error.message);
+            }
+        }
+
+        async function resolveRequest(requestId) {
+            const notes = prompt('Enter resolution notes:');
+            if (!notes) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.MAINTENANCE.RESOLVE(requestId), {
+                    method: 'PUT',
+                    body: JSON.stringify({ resolutionNotes: notes })
+                });
+
+                alert('Request marked as resolved!');
+                loadAllRequests(); // Reload
+            } catch (error) {
+                console.error('Error resolving request:', error);
+                alert('Failed to resolve request: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

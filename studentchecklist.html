@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h2>Student Management</h2>
+        </div>
+
+        <!-- Search and Filter -->
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="searchInput" placeholder="Search by name or student number..." 
+                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 10px;" />
+            
+            <select id="statusFilter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd; margin-right: 10px;">
+                <option value="">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="PENDING">Pending Approval</option>
+                <option value="SUSPENDED">Suspended</option>
+            </select>
+
+            <select id="courseFilter" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">All Courses</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 15px; text-align: right;">
+            <button onclick="window.location.href='newstudent.html'" class="btn" style="padding: 10px 20px;">
+                <i class="fas fa-plus"></i> Add New Student
+            </button>
+        </div>
+
+        <div id="loadingMessage">Loading students...</div>
+        <div id="studentsList" style="display: none;"></div>
+        <div id="emptyMessage" style="display: none; text-align: center; padding: 20px;">
+            No students found.
+        </div>
+
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api-config.js"></script>
+
+    <script>
+        let allStudents = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(true); // Admin only
+            loadAllStudents();
+
+            // Add event listeners
+            document.getElementById('searchInput').addEventListener('input', filterStudents);
+            document.getElementById('statusFilter').addEventListener('change', filterStudents);
+            document.getElementById('courseFilter').addEventListener('change', filterStudents);
+        });
+
+        async function loadAllStudents() {
+            try {
+                const response = await apiCall(API_ENDPOINTS.ADMIN_STUDENT.GET_ALL);
+                allStudents = await response.json();
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                if (allStudents.length === 0) {
+                    document.getElementById('emptyMessage').style.display = 'block';
+                } else {
+                    document.getElementById('studentsList').style.display = 'block';
+                    populateCourseFilter();
+                    displayStudents(allStudents);
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+                document.getElementById('loadingMessage').textContent = 
+                    'Error loading students: ' + error.message;
+            }
+        }
+
+        function populateCourseFilter() {
+            const courses = [...new Set(allStudents.map(s => s.course))];
+            const courseFilter = document.getElementById('courseFilter');
+            
+            courses.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course;
+                option.textContent = course;
+                courseFilter.appendChild(option);
+            });
+        }
+
+        function filterStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const courseFilter = document.getElementById('courseFilter').value;
+
+            const filtered = allStudents.filter(student => {
+                const matchSearch = !searchTerm || 
+                    student.firstName.toLowerCase().includes(searchTerm) ||
+                    student.lastName.toLowerCase().includes(searchTerm) ||
+                    student.studentNumber.toLowerCase().includes(searchTerm) ||
+                    student.email.toLowerCase().includes(searchTerm);
+
+                const matchStatus = !statusFilter || student.accountStatus === statusFilter;
+                const matchCourse = !courseFilter || student.course === courseFilter;
+
+                return matchSearch && matchStatus && matchCourse;
+            });
+
+            displayStudents(filtered);
+        }
+
+        function displayStudents(students) {
+            const container = document.getElementById('studentsList');
+            container.innerHTML = '';
+
+            if (students.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px;">No students match the current filters.</p>';
+                return;
+            }
+
+            const statusColors = {
+                'ACTIVE': '#4CAF50',
+                'PENDING': '#FFA500',
+                'SUSPENDED': '#F44336',
+                'INACTIVE': '#999'
+            };
+
+            students.forEach(student => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background: white;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                `;
+
+                card.innerHTML = `
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 5px 0;">${student.firstName} ${student.lastName}</h3>
+                        <div style="font-size: 14px; color: #666; line-height: 1.6;">
+                            <p style="margin: 3px 0;"><i class="fas fa-id-card"></i> ${student.studentNumber}</p>
+                            <p style="margin: 3px 0;"><i class="fas fa-envelope"></i> ${student.email}</p>
+                            <p style="margin: 3px 0;"><i class="fas fa-phone"></i> ${student.phoneNumber}</p>
+                            <p style="margin: 3px 0;"><i class="fas fa-graduation-cap"></i> ${student.course} - Year ${student.yearOfStudy}</p>
+                            <p style="margin: 3px 0;"><i class="fas fa-door-closed"></i> ${student.roomId ? `Room ${student.roomId}` : 'No room assigned'}</p>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-left: 20px;">
+                        <span style="background: ${statusColors[student.accountStatus]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-bottom: 10px;">
+                            ${student.accountStatus}
+                        </span>
+                        ${student.accountStatus === 'PENDING' ? `
+                            <button onclick="approveStudent('${student.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px; background: #4CAF50;">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        ` : ''}
+                        <button onclick="viewStudent('${student.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        ${student.accountStatus === 'ACTIVE' ? `
+                            <button onclick="suspendStudent('${student.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px; background: #F44336;">
+                                <i class="fas fa-ban"></i> Suspend
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        async function approveStudent(studentId) {
+            if (!confirm('Approve this student account?')) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.ADMIN_STUDENT.APPROVE, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        studentId: studentId,
+                        accountStatus: 'ACTIVE'
+                    })
+                });
+
+                alert('Student approved successfully!');
+                loadAllStudents();
+            } catch (error) {
+                console.error('Error approving student:', error);
+                alert('Failed to approve student: ' + error.message);
+            }
+        }
+
+        function viewStudent(studentId) {
+            window.location.href = `student_detail.html?id=${studentId}`;
+        }
+
+        async function suspendStudent(studentId) {
+            const reason = prompt('Enter reason for suspension:');
+            if (!reason) return;
+
+            try {
+                await apiCall(API_ENDPOINTS.ADMIN_STUDENT.UPDATE(studentId), {
+                    method: 'PUT',
+                    body: JSON.stringify({ 
+                        accountStatus: 'SUSPENDED'
+                    })
+                });
+
+                alert('Student account suspended.');
+                loadAllStudents();
+            } catch (error) {
+                console.error('Error suspending student:', error);
+                alert('Failed to suspend student: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="section-title">
+            <button class="home-btn" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+
+            <img class="logo" src="img/logo.png" alt="RHS ALIRA LOGO" />
+            <h3>Admin Dashboard</h3>
+            <p class="subtitle">Manage all resident requests and settings</p>
+        </div>
+
+        <div class="options-grid">
+            <a href="admaintanance.html" class="option-card">
+                <i class="fas fa-tools"></i>
+                <p>Maintenance</p>
+            </a>
+            <a href="adssleepover.html" class="option-card">
+                <i class="fas fa-bed"></i>
+                <p>Sleepover</p>
+            </a>
+            <a href="adquery.html" class="option-card">
+                <i class="fas fa-question-circle"></i>
+                <p>Queries</p>
+            </a>
+            <a href="ademergency.html" class="option-card">
+                <i class="fas fa-ambulance"></i>
+                <p>Emergency</p>
+            </a>
+            <a href="studentchecklist.html" class="option-card">
+                <i class="fa-solid fa-address-book"></i>
+                <p>Student Admission</p>
+            </a>
+            <a href="newstudent.html" class="option-card">
+                <i class="fa-solid fa-user-plus"></i>
+                <p>New Student</p>
+            </a>
+            <a href="adsettings.html" class="option-card">
+                <i class="fas fa-cog"></i>
+                <p>Settings</p>
+            </a>
+            <a href="adaccount.html" class="option-card">
+                <i class="fas fa-user"></i>
+                <p>Account</p>
+            </a>
+        </div>
+        <img class="Housebackground" src="img/house.jpeg" alt="House Image" />
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        // Protect page - admin only
+        document.addEventListener('DOMContentLoaded', async () => {
+            await protectPage(true); // true = admin-only
+        });
+    </script>
+</body>
+</html>
