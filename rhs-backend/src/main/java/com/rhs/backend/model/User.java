@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -47,9 +46,6 @@ public class User {
 
     @Field("is_enabled")
     private Boolean isEnabled;
-
-    @Field("admin_permissions")
-    private Map<String, Object> adminPermissions;
 
     @Field("created_at")
     private LocalDateTime createdAt;
