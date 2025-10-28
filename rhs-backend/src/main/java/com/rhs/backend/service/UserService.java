@@ -2,6 +2,7 @@ package com.rhs.backend.service;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import com.rhs.backend.model.User;
 import com.rhs.backend.repository.UserRepository;
 import com.rhs.backend.dto.UserProfileDTO;
@@ -77,12 +78,11 @@ public class UserService {
     public void changePassword(String token, ChangePasswordDTO passwordDTO) throws Exception {
         User user = getUserByFirebaseToken(token);
 
-        // Update password in Firebase
-        firebaseAuth.updateUser(
-                com.google.firebase.auth.UserRecord.UpdateRequest.builder()
-                        .setUid(user.getFirebaseUid())
-                        .setPassword(passwordDTO.getNewPassword())
-                        .build());
+        // Update password in Firebase - Use constructor, not builder
+        UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(user.getFirebaseUid())
+                .setPassword(passwordDTO.getNewPassword());
+        
+        firebaseAuth.updateUser(updateRequest);
     }
 
     /**
