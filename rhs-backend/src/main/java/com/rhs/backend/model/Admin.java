@@ -10,6 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.rhs.backend.model.embedded.AdminPermissions;
+import com.rhs.backend.model.enums.UserType;
+import com.rhs.backend.model.enums.AccountStatus;
+
+import java.time.LocalDateTime;
 
 @Document(collection = "admins")
 @Data
@@ -24,4 +28,16 @@ public class Admin extends User {
 
     @Field("department")
     private String department;
+
+    @Field("user_type")
+    private UserType userType;
+
+    @Field("account_status")
+    private AccountStatus accountStatus;
+
+    @Field("approved_by_admin_id")
+    private String approvedByAdminId;
+
+    @Field("approval_date")
+    private LocalDateTime approvalDate;
 }
