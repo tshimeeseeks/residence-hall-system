@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @Document(collection = "users")
 public class User {
 
