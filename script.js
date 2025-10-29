@@ -31,6 +31,20 @@ function goHome() {
   window.location.href = "dashboard.html";
 }
 
+function showSuccess(message) {
+    alert('Success: ' + message);
+    // Or use a better notification system
+}
+
+function showError(message) {
+    alert('Error: ' + message);
+    // Or use a better notification system
+}
+
+function goBack() {
+    window.history.back();
+}
+
 // JavaScript to count words
 const textarea = document.getElementById("message");
 const wordCountDiv = document.getElementById("wordCount");

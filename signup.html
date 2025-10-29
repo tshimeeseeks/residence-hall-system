@@ -20,27 +20,27 @@
             <h3>Personal Information</h3>
             
             <label for="firstName">First Name</label>
-            <input type="text" id="firstName" required placeholder="Enter your first name" />
+            <input type="text" id="firstName" name="firstName" required placeholder="Enter your first name" />
 
             <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" required placeholder="Enter your last name" />
+            <input type="text" id="lastName" name="lastName" required placeholder="Enter your last name" />
 
             <label for="email">Email Address</label>
-            <input type="email" id="email" required placeholder="student@example.com" />
+            <input type="email" id="email" name="email" required placeholder="student@example.com" />
 
             <label for="studentNumber">Student Number</label>
-            <input type="text" id="studentNumber" required placeholder="e.g., ST12345678" />
+            <input type="text" id="studentNumber" name="studentNumber" required placeholder="e.g., ST12345678" />
 
             <label for="phoneNumber">Phone Number</label>
-            <input type="tel" id="phoneNumber" required placeholder="+27 71 234 5678" />
+            <input type="tel" id="phoneNumber" name="phoneNumber" required placeholder="+27 71 234 5678" />
 
             <h3>Academic Information</h3>
 
             <label for="course">Course/Program</label>
-            <input type="text" id="course" required placeholder="e.g., Computer Science" />
+            <input type="text" id="course" name="course" required placeholder="e.g., Computer Science" />
 
             <label for="yearOfStudy">Year of Study</label>
-            <select id="yearOfStudy" required>
+            <select id="yearOfStudy" name="yearOfStudy" required>
                 <option value="">Select Year</option>
                 <option value="1">1st Year</option>
                 <option value="2">2nd Year</option>
@@ -52,10 +52,10 @@
             <h3>Account Security</h3>
 
             <label for="password">Password</label>
-            <input type="password" id="password" required placeholder="At least 6 characters" />
+            <input type="password" id="password" name="password" required minlength="6" placeholder="At least 6 characters" />
 
             <label for="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" required placeholder="Re-enter password" />
+            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Re-enter password" />
 
             <div style="margin: 15px 0;">
                 <input type="checkbox" id="terms" required />
@@ -81,94 +81,110 @@
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Validate passwords match
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            console.log('Form submitted');
 
-            if (password !== confirmPassword) {
+            // Get form values
+            const formData = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                studentNumber: document.getElementById('studentNumber').value.trim(),
+                phoneNumber: document.getElementById('phoneNumber').value.trim(),
+                course: document.getElementById('course').value.trim(),
+                yearOfStudy: document.getElementById('yearOfStudy').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            };
+
+            console.log('Form data collected:', {
+                ...formData,
+                password: '***',
+                confirmPassword: '***'
+            });
+
+            // Validate all fields are filled
+            for (const [key, value] of Object.entries(formData)) {
+                if (key !== 'confirmPassword' && (!value || value === '')) {
+                    alert(`Please fill in the ${key} field`);
+                    return;
+                }
+            }
+
+            // Validate passwords match
+            if (formData.password !== formData.confirmPassword) {
                 alert('Passwords do not match!');
                 return;
             }
 
-            if (password.length < 6) {
+            if (formData.password.length < 6) {
                 alert('Password must be at least 6 characters long');
                 return;
             }
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Creating Account...';
             submitBtn.disabled = true;
 
             try {
-                const email = document.getElementById('email').value;
-                const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
-                const studentNumber = document.getElementById('studentNumber').value;
-                const phoneNumber = document.getElementById('phoneNumber').value;
-                const course = document.getElementById('course').value;
-                const yearOfStudy = parseInt(document.getElementById('yearOfStudy').value);
-
-                // Step 1: Create Firebase user
-                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-
-                console.log('Firebase user created:', user.uid);
-
-                // Step 2: Get Firebase token
-                const token = await user.getIdToken();
-
-                // Step 3: Register with backend
+                // Prepare signup data (without confirmPassword)
                 const signupData = {
-                    firebaseUid: user.uid,
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    studentNumber: studentNumber,
-                    phoneNumber: phoneNumber,
-                    course: course,
-                    yearOfStudy: yearOfStudy
+                    email: formData.email,
+                    password: formData.password,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    studentNumber: formData.studentNumber,
+                    phoneNumber: formData.phoneNumber,
+                    course: formData.course,
+                    yearOfStudy: parseInt(formData.yearOfStudy)
                 };
+
+                console.log('Sending to backend:', {
+                    ...signupData,
+                    password: formData.password.length + ' chars',
+                    passwordExists: !!signupData.password
+                });
 
                 const response = await fetch(API_ENDPOINTS.STUDENT.SIGNUP, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(signupData)
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || errorData.message || 'Registration failed');
-                }
-
+                console.log('Response status:', response.status);
                 const result = await response.json();
-                console.log('Backend registration successful:', result);
+                console.log('Response data:', result);
+
+                if (!response.ok) {
+                    throw new Error(result.error || result.message || 'Registration failed');
+                }
 
                 // Success!
                 alert('Account created successfully! Please wait for admin approval. You will receive an email once your account is approved.');
                 
-                // Sign out and redirect to login
-                await firebase.auth().signOut();
+                // Redirect to login
                 window.location.href = 'login.html';
 
             } catch (error) {
                 console.error('Signup error:', error);
                 
                 let errorMessage = 'Registration failed: ';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage += 'This email is already registered.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage += 'Invalid email address.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage += 'Password is too weak.';
+                
+                if (error.message.includes('email is already registered') || 
+                    error.message.includes('email already exists')) {
+                    errorMessage = 'This email is already registered. Please login instead.';
+                } else if (error.message.includes('student number')) {
+                    errorMessage = 'This student number is already registered.';
+                } else if (error.message.includes('Forbidden')) {
+                    errorMessage = 'Access denied. Please try again or contact support.';
                 } else {
                     errorMessage += error.message;
                 }
 
                 alert(errorMessage);
-                submitBtn.textContent = 'Sign Up';
+                submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
         });

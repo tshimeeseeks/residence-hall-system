@@ -9,6 +9,15 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Configuration and Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="api-config.js"></script>
+    <script src="auth.js"></script>
   </head>
   <body>
     <div class="form-container">
@@ -23,9 +32,9 @@
 
       <p class="subtitle">Report a maintenance issue</p>
 
-      <form class="signup-form">
+      <form class="signup-form" id="maintenance-form">
         <label for="room">Enter Room Number</label>
-        <input type="text" id="room" placeholder="Enter room number" />
+        <input type="text" id="room" placeholder="Enter room number" required />
 
         <label for="message">Maintenance Issue:</label>
         <textarea
@@ -33,6 +42,7 @@
           name="message"
           placeholder="Type your query here..."
           maxlength="2000"
+          required
         ></textarea>
         <div id="wordCount">0 / 200 words</div>
 
@@ -53,9 +63,97 @@
         <!-- Preview Area -->
         <div id="image-preview"></div>
 
-        <button class="submit-btn" onclick="simulateSubmit(this)">Send</button>
+        <button type="submit" class="submit-btn">Send</button>
       </form>
     </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="maintenance.js"></script>
+    
+    <script>
+      // Word counter functionality
+      const messageInput = document.getElementById('message');
+      const wordCountDisplay = document.getElementById('wordCount');
+      
+      if (messageInput && wordCountDisplay) {
+        messageInput.addEventListener('input', function() {
+          const text = this.value.trim();
+          const words = text.length > 0 ? text.split(/\s+/).length : 0;
+          wordCountDisplay.textContent = `${words} / 200 words`;
+          
+          if (words > 200) {
+            wordCountDisplay.style.color = 'red';
+          } else {
+            wordCountDisplay.style.color = '';
+          }
+        });
+      }
+      
+      // Image preview functionality
+      const imageInput = document.getElementById('support-image');
+      const previewContainer = document.getElementById('image-preview');
+      
+      if (imageInput && previewContainer) {
+        imageInput.addEventListener('change', function(event) {
+          const file = event.target.files[0];
+          
+          if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+              alert('File size must be less than 5MB');
+              this.value = '';
+              return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+              alert('Please select a valid image file');
+              this.value = '';
+              return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              previewContainer.innerHTML = `
+                <div class="preview-image-container" style="margin-top: 15px; text-align: center;">
+                  <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                  <button type="button" onclick="clearImagePreview()" class="remove-image-btn" style="display: block; margin: 10px auto; padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    <i class="fa fa-times"></i> Remove Image
+                  </button>
+                </div>
+              `;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+      
+      // Helper function to clear image preview
+      function clearImagePreview() {
+        if (previewContainer) {
+          previewContainer.innerHTML = '';
+        }
+        if (imageInput) {
+          imageInput.value = '';
+        }
+      }
+      
+      // Back button functionality
+      function goBack() {
+        window.history.back();
+      }
+      
+      // Check authentication on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (!user) {
+            // Not logged in, redirect to login page
+            alert('Please log in to submit a maintenance request');
+            window.location.href = 'login.html';
+          }
+        });
+      });
+    </script>
   </body>
-  <script src="script.js"></script>
 </html>

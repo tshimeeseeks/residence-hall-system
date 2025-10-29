@@ -66,6 +66,8 @@
                 const response = await apiCall(API_ENDPOINTS.MAINTENANCE.GET_ALL);
                 allRequests = await response.json();
 
+                console.log('Loaded requests:', allRequests); // Debug log
+
                 document.getElementById('loadingMessage').style.display = 'none';
 
                 if (allRequests.length === 0) {
@@ -114,17 +116,18 @@
                     padding: 15px;
                     margin-bottom: 15px;
                     background: white;
+                    cursor: pointer;
                 `;
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div style="flex: 1;">
-                            <h3 style="margin: 0 0 5px 0;">${request.title}</h3>
-                            <p style="color: #666; margin: 5px 0;">${request.description}</p>
+                            <h3 style="margin: 0 0 5px 0;">${request.queryTitle || 'Maintenance Request'}</h3>
+                            <p style="color: #666; margin: 5px 0;">${request.queryDescription || 'No description'}</p>
                             <div style="font-size: 14px; color: #888; margin-top: 10px;">
-                                <span><i class="fas fa-user"></i> ${request.studentName}</span> |
-                                <span><i class="fas fa-door-closed"></i> Room ${request.roomNumber || 'N/A'}</span> |
-                                <span><i class="fas fa-tag"></i> ${request.category}</span> |
+                                <span><i class="fas fa-user"></i> ${request.studentName || 'Unknown'}</span> |
+                                <span><i class="fas fa-door-closed"></i> Room ${request.roomId || 'N/A'}</span> |
+                                <span><i class="fas fa-tag"></i> ${request.category || 'GENERAL'}</span> |
                                 <span style="color: ${request.priority === 'URGENT' ? 'red' : 'inherit'};">
                                     ${request.priority}
                                 </span>
@@ -135,12 +138,12 @@
                                 ${request.status}
                             </span>
                             ${request.status === 'PENDING' ? `
-                                <button onclick="updateStatus('${request.id}', 'IN_PROGRESS')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
+                                <button onclick="event.stopPropagation(); updateStatus('${request.id}', 'IN_PROGRESS')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
                                     Start Work
                                 </button>
                             ` : ''}
                             ${request.status === 'IN_PROGRESS' ? `
-                                <button onclick="resolveRequest('${request.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
+                                <button onclick="event.stopPropagation(); resolveRequest('${request.id}')" class="btn" style="display: block; margin: 5px 0; padding: 8px 15px; font-size: 12px;">
                                     Mark Resolved
                                 </button>
                             ` : ''}
@@ -148,7 +151,7 @@
                     </div>
                     ${request.photoUrls && request.photoUrls.length > 0 ? `
                         <div style="margin-top: 10px;">
-                            <img src="${request.photoUrls[0]}" alt="Issue photo" style="max-width: 200px; border-radius: 5px; cursor: pointer;" onclick="window.open('${request.photoUrls[0]}', '_blank')">
+                            <img src="${request.photoUrls[0]}" alt="Issue photo" style="max-width: 200px; border-radius: 5px; cursor: pointer;" onclick="event.stopPropagation(); window.open('${request.photoUrls[0]}', '_blank')">
                         </div>
                     ` : ''}
                 `;

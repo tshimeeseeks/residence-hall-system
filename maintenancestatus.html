@@ -94,17 +94,22 @@
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <h3 style="margin: 0; color: #333;">${request.title}</h3>
+                        <h3 style="margin: 0; color: #333;">${request.queryTitle || 'Maintenance Request'}</h3>
                         <span style="background: ${statusColors[request.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
                             ${request.status}
                         </span>
                     </div>
-                    <p style="color: #666; margin: 10px 0;">${request.description}</p>
+                    <p style="color: #666; margin: 10px 0;">${request.queryDescription || 'No description'}</p>
                     <div style="display: flex; gap: 15px; font-size: 14px; color: #888; margin-top: 10px;">
-                        <span>${priorityIcons[request.priority]} ${request.priority}</span>
-                        <span><i class="fas fa-tag"></i> ${request.category}</span>
+                        <span>${priorityIcons[request.priority] || '➡️'} ${request.priority}</span>
+                        <span><i class="fas fa-tag"></i> ${request.category || 'GENERAL'}</span>
                         <span><i class="fas fa-calendar"></i> ${new Date(request.createdAt).toLocaleDateString()}</span>
                     </div>
+                    ${request.photoUrls && request.photoUrls.length > 0 ? `
+                        <div style="margin-top: 10px;">
+                            <img src="${request.photoUrls[0]}" alt="Issue photo" style="max-width: 200px; border-radius: 5px; cursor: pointer;" onclick="window.open('${request.photoUrls[0]}', '_blank')">
+                        </div>
+                    ` : ''}
                     ${request.resolutionNotes ? `
                         <div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
                             <strong>Resolution Notes:</strong>

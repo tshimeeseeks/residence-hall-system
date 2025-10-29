@@ -47,14 +47,16 @@ const API_ENDPOINTS = {
     },
     
     // Sleepover
-SLEEPOVER: {
-    CREATE: `${API_BASE_URL}/sleepover-passes`,
-    GET_ALL: `${API_BASE_URL}/sleepover-passes`,
-    GET_MY: `${API_BASE_URL}/sleepover-passes/my`,
-    GET_ONE: (id) => `${API_BASE_URL}/sleepover-passes/${id}`,
-    APPROVE: (id) => `${API_BASE_URL}/sleepover-passes/${id}/approve`,
-    REJECT: (id) => `${API_BASE_URL}/sleepover-passes/${id}/reject`
-},
+    SLEEPOVER: {
+        CREATE: `${API_BASE_URL}/sleepover-passes`,
+        GET_ALL: `${API_BASE_URL}/sleepover-passes/admin`,
+        GET_MY: `${API_BASE_URL}/sleepover-passes/my`,
+        GET_ONE: (id) => `${API_BASE_URL}/sleepover-passes/${id}`,
+        APPROVE: (id) => `${API_BASE_URL}/sleepover-passes/${id}/approve`,
+        REJECT: (id) => `${API_BASE_URL}/sleepover-passes/${id}/reject`,
+        GET_PENDING: `${API_BASE_URL}/sleepover-passes/admin/pending`,
+        GET_ACTIVE: `${API_BASE_URL}/sleepover-passes/admin/active`
+    },
     
     // Rooms
     ROOM: {

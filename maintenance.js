@@ -7,85 +7,150 @@
 async function handleMaintenanceSubmit(event) {
     event.preventDefault();
     
-    const issueType = document.getElementById('issue-type').value;
-    const description = document.getElementById('description').value;
-    const priority = document.getElementById('priority').value;
+    const roomNumber = document.getElementById('room').value;
+    const message = document.getElementById('message').value;
     const imageFile = document.getElementById('support-image').files[0];
     
+    // Validate required fields
+    if (!roomNumber || !message) {
+        showError('Please fill in all required fields');
+        return;
+    }
+    
     try {
+        // Show loading state
+        const submitBtn = event.target.querySelector('.submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        
         // First, upload image if provided
         let photoUrl = null;
         if (imageFile) {
             const formData = new FormData();
             formData.append('file', imageFile);
             
-            const uploadResponse = await uploadFile(
-                API_ENDPOINTS.maintenance.uploadImage,
-                formData
-            );
-            photoUrl = uploadResponse.url || uploadResponse.filePath;
+            const uploadResponse = await fetch(API_ENDPOINTS.FILES.UPLOAD, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${await firebase.auth().currentUser.getIdToken()}`
+                },
+                body: formData
+            });
+            
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload image');
+            }
+            
+            const uploadData = await uploadResponse.json();
+            photoUrl = uploadData.url || uploadData.filePath;
         }
         
-        // Get current user details
-        const user = getCurrentUser();
-        
-        // Create maintenance request
+        // Create maintenance request with CORRECT field names
         const requestData = {
-            studentId: user.userId,
-            roomId: user.roomId || document.getElementById('room-id').value,
-            issueType: issueType,
-            description: description,
-            priority: priority,
-            photos: photoUrl ? [photoUrl] : [],
-            status: 'PENDING'
+            queryTitle: "Maintenance Request - Room " + roomNumber,
+            queryDescription: message,
+            category: "GENERAL",
+            photoUrls: photoUrl ? [photoUrl] : [],
+            priority: "MEDIUM"
         };
         
-        const response = await apiCall(
-            API_ENDPOINTS.maintenance.create,
-            HTTP_METHODS.POST,
-            requestData
-        );
+        const token = await firebase.auth().currentUser.getIdToken();
+        const response = await fetch(API_ENDPOINTS.MAINTENANCE.CREATE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to submit maintenance request');
+        }
+        
+        const result = await response.json();
+        console.log('Maintenance request created:', result);
         
         showSuccess('Maintenance request submitted successfully!');
+        
+        // Reset form
+        event.target.reset();
+        document.getElementById('image-preview').innerHTML = '';
+        
         setTimeout(() => {
-            window.location.href = 'maintanance.html';
+            window.location.href = 'maintenancestatus.html';
         }, 1500);
         
     } catch (error) {
+        console.error('Error submitting maintenance request:', error);
         showError(error.message || 'Failed to submit maintenance request');
+        
+        // Re-enable submit button
+        const submitBtn = event.target.querySelector('.submit-btn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send';
+        }
     }
 }
 
 // ===== LOAD MAINTENANCE REQUESTS (FOR STUDENT) =====
 async function loadStudentMaintenanceRequests() {
     try {
-        const user = getCurrentUser();
-        const response = await apiCall(
-            API_ENDPOINTS.maintenance.getByStudent(user.userId),
-            HTTP_METHODS.GET
-        );
+        const token = await firebase.auth().currentUser.getIdToken();
         
-        displayMaintenanceRequests(response);
+        const response = await fetch(API_ENDPOINTS.MAINTENANCE.GET_MY, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to load maintenance requests');
+        }
+        
+        const requests = await response.json();
+        console.log('Loaded maintenance requests:', requests);
+        
+        displayMaintenanceRequests(requests);
         
     } catch (error) {
         console.error('Failed to load maintenance requests:', error);
-        showError('Failed to load maintenance requests');
+        showError('Failed to load maintenance requests: ' + error.message);
     }
 }
 
 // ===== LOAD ALL MAINTENANCE REQUESTS (FOR ADMIN) =====
 async function loadAllMaintenanceRequests() {
     try {
-        const response = await apiCall(
-            API_ENDPOINTS.maintenance.getAll,
-            HTTP_METHODS.GET
-        );
+        const token = await firebase.auth().currentUser.getIdToken();
         
-        displayAdminMaintenanceRequests(response);
+        const response = await fetch(API_ENDPOINTS.MAINTENANCE.GET_ALL, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to load maintenance requests');
+        }
+        
+        const requests = await response.json();
+        console.log('Loaded admin maintenance requests:', requests);
+        
+        displayAdminMaintenanceRequests(requests);
         
     } catch (error) {
         console.error('Failed to load maintenance requests:', error);
-        showError('Failed to load maintenance requests');
+        showError('Failed to load maintenance requests: ' + error.message);
     }
 }
 
@@ -103,19 +168,19 @@ function displayMaintenanceRequests(requests) {
     container.innerHTML = requests.map(request => `
         <div class="request-card ${request.status.toLowerCase()}">
             <div class="request-header">
-                <h3>${request.issueType || 'Maintenance Issue'}</h3>
+                <h3>${request.queryTitle || 'Maintenance Issue'}</h3>
                 <span class="status-badge ${request.status.toLowerCase()}">${request.status}</span>
             </div>
             <div class="request-body">
                 <p><strong>Room:</strong> ${request.roomId}</p>
                 <p><strong>Priority:</strong> ${request.priority}</p>
-                <p><strong>Description:</strong> ${request.description || 'No description provided'}</p>
+                <p><strong>Description:</strong> ${request.queryDescription || 'No description provided'}</p>
                 <p><strong>Date:</strong> ${new Date(request.createdAt).toLocaleDateString()}</p>
                 ${request.assignedToName ? `<p><strong>Assigned to:</strong> ${request.assignedToName}</p>` : ''}
                 ${request.resolutionNotes ? `<p><strong>Resolution:</strong> ${request.resolutionNotes}</p>` : ''}
-                ${request.photos && request.photos.length > 0 ? `
+                ${request.photoUrls && request.photoUrls.length > 0 ? `
                     <div class="request-images">
-                        ${request.photos.map(photo => `<img src="${photo}" alt="Issue photo" class="request-image">`).join('')}
+                        ${request.photoUrls.map(photo => `<img src="${photo}" alt="Issue photo" class="request-image">`).join('')}
                     </div>
                 ` : ''}
             </div>
@@ -137,7 +202,7 @@ function displayAdminMaintenanceRequests(requests) {
     container.innerHTML = requests.map(request => `
         <div class="admin-request-card" onclick="viewMaintenanceDetail('${request.id}')">
             <div class="request-info">
-                <h4>${request.issueType || 'Maintenance Request'}</h4>
+                <h4>${request.queryTitle || 'Maintenance Request'}</h4>
                 <p class="student-info">Student: ${request.studentName || request.studentEmail}</p>
                 <p class="room-info">Room: ${request.roomId}</p>
                 <p class="priority-info priority-${request.priority.toLowerCase()}">${request.priority} Priority</p>
@@ -153,16 +218,33 @@ function displayAdminMaintenanceRequests(requests) {
 // ===== UPDATE MAINTENANCE REQUEST STATUS =====
 async function updateMaintenanceStatus(requestId, newStatus, resolutionNotes = '') {
     try {
-        const updateData = {
-            status: newStatus,
-            resolutionNotes: resolutionNotes
-        };
+        const token = await firebase.auth().currentUser.getIdToken();
         
-        const response = await apiCall(
-            API_ENDPOINTS.maintenance.update(requestId),
-            HTTP_METHODS.PUT,
-            updateData
-        );
+        // Determine which endpoint to use based on the status
+        let endpoint;
+        let updateData;
+        
+        if (newStatus === 'RESOLVED') {
+            endpoint = API_ENDPOINTS.MAINTENANCE.RESOLVE(requestId);
+            updateData = { resolutionNotes: resolutionNotes };
+        } else {
+            endpoint = API_ENDPOINTS.MAINTENANCE.UPDATE_STATUS(requestId);
+            updateData = { status: newStatus, resolutionNotes: resolutionNotes };
+        }
+        
+        const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update maintenance request');
+        }
         
         showSuccess('Maintenance request updated successfully!');
         loadAllMaintenanceRequests(); // Reload the list
@@ -188,11 +270,22 @@ async function loadMaintenanceDetail() {
     }
     
     try {
-        const request = await apiCall(
-            API_ENDPOINTS.maintenance.getById(requestId),
-            HTTP_METHODS.GET
-        );
+        const token = await firebase.auth().currentUser.getIdToken();
         
+        const response = await fetch(API_ENDPOINTS.MAINTENANCE.GET_ONE(requestId), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to load maintenance request details');
+        }
+        
+        const request = await response.json();
         displayMaintenanceDetail(request);
         
     } catch (error) {
@@ -206,9 +299,9 @@ function displayMaintenanceDetail(request) {
     const elements = {
         'student-name': request.studentName || request.studentEmail,
         'room-number': request.roomId,
-        'issue-type': request.issueType,
+        'issue-type': request.queryTitle || request.category,
         'priority-level': request.priority,
-        'description-text': request.description,
+        'description-text': request.queryDescription,
         'request-date': new Date(request.createdAt).toLocaleDateString(),
         'current-status': request.status
     };
@@ -221,10 +314,10 @@ function displayMaintenanceDetail(request) {
     }
     
     // Display images if available
-    if (request.photos && request.photos.length > 0) {
+    if (request.photoUrls && request.photoUrls.length > 0) {
         const imageContainer = document.getElementById('request-images');
         if (imageContainer) {
-            imageContainer.innerHTML = request.photos.map(photo => 
+            imageContainer.innerHTML = request.photoUrls.map(photo => 
                 `<img src="${photo}" alt="Issue photo" class="detail-image">`
             ).join('');
         }
