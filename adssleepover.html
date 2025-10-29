@@ -70,8 +70,7 @@
                 : allPasses;
             displayPasses(filtered);
         }
-
-        function displayPasses(passes) {
+function displayPasses(passes) {
             const container = document.getElementById('passesList');
             container.innerHTML = '';
 
@@ -91,26 +90,31 @@
                     background: white;
                 `;
 
-                const checkIn = new Date(pass.checkInDateTime);
-                const checkOut = new Date(pass.checkOutDateTime);
+                // Access guest details from visitor object
+                const guestName = pass.visitor?.guestName || 'N/A';
+                const guestIdNumber = pass.visitor?.guestIdNumber || 'N/A';
+                const guestPhone = pass.visitor?.guestPhone || 'N/A';
+                const guestIdDocument = pass.visitor?.idDocument || null;
+                
+                // Use startDate and endDate
+                const checkInDate = pass.startDate ? new Date(pass.startDate) : null;
+                const checkOutDate = pass.endDate ? new Date(pass.endDate) : null;
 
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div style="flex: 1;">
-                            <h3 style="margin: 0 0 5px 0;">Guest: ${pass.guestName}</h3>
+                            <h3 style="margin: 0 0 5px 0;">Guest: ${guestName}</h3>
                             <p style="color: #666; font-size: 14px; margin: 5px 0;">
-                                Student: ${pass.studentName} | Room: ${pass.roomNumber || 'N/A'}
+                                Student: ${pass.studentName || pass.studentEmail || 'N/A'} | Room: ${pass.roomId || 'N/A'}
                             </p>
                             <div style="font-size: 13px; color: #888; margin-top: 10px; line-height: 1.8;">
-                                <p><i class="fas fa-id-card"></i> ${pass.guestIdNumber}</p>
-                                <p><i class="fas fa-phone"></i> ${pass.guestPhoneNumber}</p>
-                                <p><i class="fas fa-sign-in-alt"></i> ${checkIn.toLocaleString()}</p>
-                                <p><i class="fas fa-sign-out-alt"></i> ${checkOut.toLocaleString()}</p>
-                                <p><i class="fas fa-users"></i> ${pass.relationship}</p>
-                                <p><i class="fas fa-info-circle"></i> ${pass.reason}</p>
+                                <p><i class="fas fa-id-card"></i> ${guestIdNumber}</p>
+                                <p><i class="fas fa-phone"></i> ${guestPhone}</p>
+                                <p><i class="fas fa-sign-in-alt"></i> Check-in: ${checkInDate ? checkInDate.toLocaleDateString() : 'N/A'}</p>
+                                <p><i class="fas fa-sign-out-alt"></i> Check-out: ${checkOutDate ? checkOutDate.toLocaleDateString() : 'N/A'}</p>
                             </div>
-                            ${pass.guestIdDocumentUrl ? `
-                                <a href="${pass.guestIdDocumentUrl}" target="_blank" style="color: #2196F3; text-decoration: none; font-size: 13px;">
+                            ${guestIdDocument ? `
+                                <a href="http://localhost:8080${guestIdDocument}" target="_blank" style="color: #2196F3; text-decoration: none; font-size: 13px; display: inline-block; margin-top: 10px;">
                                     <i class="fas fa-file"></i> View ID Document
                                 </a>
                             ` : ''}
@@ -129,6 +133,12 @@
                             ` : ''}
                         </div>
                     </div>
+                    ${pass.adminComments ? `
+                        <div style="margin-top: 10px; padding: 10px; background: ${pass.status === 'REJECTED' ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
+                            <strong>Admin Notes:</strong>
+                            <p style="margin: 5px 0 0 0;">${pass.adminComments}</p>
+                        </div>
+                    ` : ''}
                 `;
 
                 container.appendChild(card);

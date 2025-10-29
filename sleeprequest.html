@@ -122,15 +122,32 @@
             submitBtn.disabled = true;
 
             try {
-                // Upload ID document
+                // Upload ID document to backend API instead of Firebase
                 let idDocumentUrl = null;
                 if (selectedIdFile) {
-                    const user = firebase.auth().currentUser;
-                    const storageRef = firebase.storage().ref();
-                    const idRef = storageRef.child(`sleepover-ids/${user.uid}/${Date.now()}_${selectedIdFile.name}`);
+                    console.log('Uploading ID document...');
                     
-                    await idRef.put(selectedIdFile);
-                    idDocumentUrl = await idRef.getDownloadURL();
+                    const formData = new FormData();
+                    formData.append('file', selectedIdFile);
+
+                    const user = firebase.auth().currentUser;
+                    const token = await user.getIdToken();
+
+                    const uploadResponse = await fetch('http://localhost:8080/api/files/upload', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (!uploadResponse.ok) {
+                        throw new Error('Failed to upload ID document');
+                    }
+
+                    const uploadResult = await uploadResponse.json();
+                    idDocumentUrl = uploadResult.fileUrl;
+                    console.log('ID document uploaded:', idDocumentUrl);
                 }
 
                 // Prepare request data
@@ -149,6 +166,7 @@
                     guestIdDocumentUrl: idDocumentUrl
                 };
 
+                console.log('Submitting sleepover request...');
                 const response = await apiCall(API_ENDPOINTS.SLEEPOVER.CREATE, {
                     method: 'POST',
                     body: JSON.stringify(requestData)

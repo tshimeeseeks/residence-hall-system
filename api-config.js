@@ -12,6 +12,11 @@ const API_ENDPOINTS = {
         ME: `${API_BASE_URL}/auth/me`,
         LOGOUT: `${API_BASE_URL}/auth/logout`
     },
+
+    // File Upload
+    FILES: {
+        UPLOAD: `${API_BASE_URL}/files/upload`
+    },
     
     // Student Management
     STUDENT: {

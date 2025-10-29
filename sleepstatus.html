@@ -80,27 +80,32 @@
                     background: white;
                 `;
 
-                const checkIn = new Date(pass.checkInDateTime);
-                const checkOut = new Date(pass.checkOutDateTime);
+                // Access guest details from visitor object
+                const guestName = pass.visitor?.guestName || 'N/A';
+                const guestIdNumber = pass.visitor?.guestIdNumber || 'N/A';
+                const guestPhone = pass.visitor?.guestPhone || 'N/A';
+                
+                // Use startDate and endDate instead of checkInDateTime/checkOutDateTime
+                const checkInDate = pass.startDate ? new Date(pass.startDate) : null;
+                const checkOutDate = pass.endDate ? new Date(pass.endDate) : null;
 
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 10px;">
-                        <h3 style="margin: 0; flex: 1;">Guest: ${pass.guestName}</h3>
-                        <span style="background: ${statusColors[pass.status]}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <h3 style="margin: 0; flex: 1;">Guest: ${guestName}</h3>
+                        <span style="background: ${statusColors[pass.status] || '#999'}; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
                             ${pass.status}
                         </span>
                     </div>
                     <div style="font-size: 14px; color: #666; line-height: 1.8;">
-                        <p><i class="fas fa-id-card"></i> ID: ${pass.guestIdNumber}</p>
-                        <p><i class="fas fa-phone"></i> ${pass.guestPhoneNumber}</p>
-                        <p><i class="fas fa-sign-in-alt"></i> Check-in: ${checkIn.toLocaleString()}</p>
-                        <p><i class="fas fa-sign-out-alt"></i> Check-out: ${checkOut.toLocaleString()}</p>
-                        <p><i class="fas fa-info-circle"></i> ${pass.reason}</p>
+                        <p><i class="fas fa-id-card"></i> ID: ${guestIdNumber}</p>
+                        <p><i class="fas fa-phone"></i> ${guestPhone}</p>
+                        <p><i class="fas fa-sign-in-alt"></i> Check-in: ${checkInDate ? checkInDate.toLocaleDateString() : 'N/A'}</p>
+                        <p><i class="fas fa-sign-out-alt"></i> Check-out: ${checkOutDate ? checkOutDate.toLocaleDateString() : 'N/A'}</p>
                     </div>
-                    ${pass.adminNotes ? `
+                    ${pass.adminComments ? `
                         <div style="margin-top: 10px; padding: 10px; background: ${pass.status === 'REJECTED' ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
                             <strong>Admin Notes:</strong>
-                            <p style="margin: 5px 0 0 0;">${pass.adminNotes}</p>
+                            <p style="margin: 5px 0 0 0;">${pass.adminComments}</p>
                         </div>
                     ` : ''}
                 `;
