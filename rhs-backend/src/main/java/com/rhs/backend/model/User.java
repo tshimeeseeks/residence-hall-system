@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import lombok.Builder;  // <-- ADD THIS LINE
 
 import java.time.LocalDateTime;
 
@@ -54,6 +55,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Field("_class")
+    @Builder.Default
     private String classType = "com.rhs.backend.model.Admin";
 
     // Constructor for creating new users

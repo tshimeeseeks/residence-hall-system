@@ -118,8 +118,8 @@ public class AuthService {
         admin.setFirstName(request.getFirstName());
         admin.setLastName(request.getLastName());
         admin.setPhoneNumber(request.getPhoneNumber());
-        admin.setUserType(UserType.ADMIN);  // Set enum directly
-        admin.setAccountStatus(AccountStatus.APPROVED);  // Set enum directly
+        admin.setUserType(UserType.ADMIN.name());  // FIXED: Added .name()
+        admin.setAccountStatus(AccountStatus.APPROVED.name());  // FIXED: Added .name()
         admin.setIsEnabled(true);
         admin.setApprovedByAdminId(creatorAdminId);
         admin.setApprovalDate(LocalDateTime.now());
@@ -133,8 +133,8 @@ public class AuthService {
                 .message("Admin created successfully")
                 .userId(admin.getId())
                 .email(admin.getEmail())
-                .userType(admin.getUserType().name())
-                .accountStatus(admin.getAccountStatus().name())
+                .userType(admin.getUserType())  // FIXED: Removed .name()
+                .accountStatus(admin.getAccountStatus())  // FIXED: Removed .name()
                 .build();
     }
 

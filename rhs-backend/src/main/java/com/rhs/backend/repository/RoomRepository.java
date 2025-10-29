@@ -26,8 +26,8 @@ public interface RoomRepository extends MongoRepository<Room, String> {
 
     List<Room> findByBlockAndType(String block, String type);
 
-    @Query("{ $expr: { $lt: [ '$currentOccupancy', '$capacity' ] } }")
-    List<Room> findAvailableRooms();
+    @Query("{ $expr: { $lt: ['$current_occupancy', '$capacity'] } }")
+    List<Room> findAllAvailableRooms();
 
     List<Room> findByLastMaintenanceBefore(LocalDate date);
 

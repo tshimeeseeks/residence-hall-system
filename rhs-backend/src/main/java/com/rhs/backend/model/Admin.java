@@ -26,15 +26,6 @@ public class Admin extends User {
     @Field("admin_permissions")
     private AdminPermissions adminPermissions;
 
-    @Field("department")
-    private String department;
-
-    @Field("user_type")
-    private UserType userType;
-
-    @Field("account_status")
-    private AccountStatus accountStatus;
-
     @Field("approved_by_admin_id")
     private String approvedByAdminId;
 

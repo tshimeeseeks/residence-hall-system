@@ -48,8 +48,8 @@ public class AuthController {
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
             response.put("userId", admin.getId());
-            response.put("userType", admin.getUserType().name());
-            response.put("accountStatus", admin.getAccountStatus().name());
+            response.put("userType", admin.getUserType());  // REMOVED .name()
+            response.put("accountStatus", admin.getAccountStatus());  // REMOVED .name()
             response.put("isAdmin", true);
             response.put("firstName", admin.getFirstName());
             response.put("lastName", admin.getLastName());
@@ -96,8 +96,8 @@ public class AuthController {
             response.put("firstName", admin.getFirstName());
             response.put("lastName", admin.getLastName());
             response.put("phoneNumber", admin.getPhoneNumber());
-            response.put("userType", admin.getUserType().name());
-            response.put("accountStatus", admin.getAccountStatus().name());
+            response.put("userType", admin.getUserType());  // REMOVED .name()
+            response.put("accountStatus", admin.getAccountStatus());  // REMOVED .name()
             response.put("isAdmin", true);
             response.put("department", admin.getDepartment());
 
