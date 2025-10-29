@@ -91,113 +91,134 @@
             loadAvailableRooms();
         });
 
-        async function loadAvailableRooms() {
-            try {
-                const response = await apiCall(API_ENDPOINTS.ROOM.GET_AVAILABLE);
-                const rooms = await response.json();
-
-                const roomSelect = document.getElementById('roomId');
-                roomSelect.innerHTML = '<option value="">Select Room</option>';
-
-                rooms.forEach(room => {
-                    const option = document.createElement('option');
-                    option.value = room.id;
-                    option.textContent = `Room ${room.roomNumber} - ${room.building} (Floor ${room.floor}) - ${room.availableSpaces} spaces available`;
-                    roomSelect.appendChild(option);
-                });
-
-                if (rooms.length === 0) {
-                    roomSelect.innerHTML = '<option value="">No available rooms</option>';
-                }
-            } catch (error) {
-                console.error('Error loading rooms:', error);
-                document.getElementById('roomId').innerHTML = '<option value="">Error loading rooms</option>';
-            }
+       async function loadAvailableRooms() {
+    const roomSelect = document.getElementById('roomId');
+    
+    try {
+        console.log('Fetching rooms from:', API_ENDPOINTS.ROOM.GET_AVAILABLE);
+        
+        const response = await apiCall(API_ENDPOINTS.ROOM.GET_AVAILABLE);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const rooms = await response.json();
+        console.log('Rooms received:', rooms);
+
+        roomSelect.innerHTML = '<option value="">Select Room</option>';
+
+        if (Array.isArray(rooms) && rooms.length > 0) {
+            rooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.id;
+                option.textContent = `Room ${room.roomNumber} - ${room.building} (Floor ${room.floor}) - ${room.availableSpaces} spaces available`;
+                roomSelect.appendChild(option);
+            });
+        } else {
+            roomSelect.innerHTML = '<option value="">No available rooms</option>';
+        }
+    } catch (error) {
+        console.error('Error loading rooms:', error);
+        console.error('Full error:', error.message);
+        
+        // TEMPORARY FALLBACK: Use static rooms until backend is ready
+        alert('Could not load rooms from server. Using temporary room list.\n\nPlease ensure your backend server is running on port 8080.');
+        
+        roomSelect.innerHTML = '<option value="">Select Room</option>' +
+            '<option value="temp-101">Room 101 - Building A (Floor 1) - Temporary</option>' +
+            '<option value="temp-102">Room 102 - Building A (Floor 1) - Temporary</option>' +
+            '<option value="temp-103">Room 103 - Building A (Floor 1) - Temporary</option>' +
+            '<option value="temp-201">Room 201 - Building A (Floor 2) - Temporary</option>' +
+            '<option value="temp-202">Room 202 - Building A (Floor 2) - Temporary</option>' +
+            '<option value="temp-203">Room 203 - Building A (Floor 2) - Temporary</option>' +
+            '<option value="temp-301">Room 301 - Building B (Floor 3) - Temporary</option>' +
+            '<option value="temp-302">Room 302 - Building B (Floor 3) - Temporary</option>';
+    }
+}
 
         document.getElementById('createStudentForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    e.preventDefault();
 
-            // Validate passwords
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+    // Validate passwords
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
+    if (password !== confirmPassword) {
+        alert('Passwords do not match!');
+        return;
+    }
 
-            if (password.length < 6) {
-                alert('Password must be at least 6 characters');
-                return;
-            }
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.textContent = 'Creating Account...';
-            submitBtn.disabled = true;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Creating Account...';
+    submitBtn.disabled = true;
 
-            try {
-                const email = document.getElementById('email').value;
+    try {
+        const email = document.getElementById('email').value;
+        
+        // Get current admin user
+        const currentAdmin = firebase.auth().currentUser;
+        if (!currentAdmin) {
+            throw new Error('Admin not authenticated');
+        }
 
-                // Step 1: Create Firebase account
-                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                const firebaseUser = userCredential.user;
+        // Step 1: Get admin token FIRST (before creating student)
+        const adminToken = await currentAdmin.getIdToken();
 
-                console.log('Firebase user created:', firebaseUser.uid);
+        // Step 2: Create student account via backend
+        // The backend will create both Firebase user and MongoDB entry
+        const studentData = {
+            email: email,
+            password: password,
+            firstName: document.getElementById('firstName').value,
+            lastName: document.getElementById('lastName').value,
+            studentNumber: document.getElementById('studentNumber').value,
+            phoneNumber: document.getElementById('phoneNumber').value,
+            course: document.getElementById('course').value,
+            yearOfStudy: parseInt(document.getElementById('yearOfStudy').value),
+            roomId: document.getElementById('roomId').value,
+            accountStatus: document.getElementById('autoApprove').checked ? 'ACTIVE' : 'PENDING'
+        };
 
-                // Step 2: Sign out immediately (admin stays logged in)
-                await firebase.auth().signOut();
-
-                // Step 3: Re-authenticate as admin
-                // (The admin will be prompted to log back in if needed)
-
-                // Step 4: Create student in backend
-                const studentData = {
-                    firebaseUid: firebaseUser.uid,
-                    email: email,
-                    firstName: document.getElementById('firstName').value,
-                    lastName: document.getElementById('lastName').value,
-                    studentNumber: document.getElementById('studentNumber').value,
-                    phoneNumber: document.getElementById('phoneNumber').value,
-                    course: document.getElementById('course').value,
-                    yearOfStudy: parseInt(document.getElementById('yearOfStudy').value),
-                    roomId: document.getElementById('roomId').value,
-                    accountStatus: document.getElementById('autoApprove').checked ? 'ACTIVE' : 'PENDING'
-                };
-
-                const response = await apiCall(API_ENDPOINTS.ADMIN_STUDENT.CREATE, {
-                    method: 'POST',
-                    body: JSON.stringify(studentData)
-                });
-
-                const result = await response.json();
-                console.log('Student created in backend:', result);
-
-                alert(`Student account created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials with the student.`);
-                
-                // Reset form
-                e.target.reset();
-                submitBtn.textContent = 'Create Student Account';
-                submitBtn.disabled = false;
-                
-                // Reload rooms
-                loadAvailableRooms();
-
-            } catch (error) {
-                console.error('Error creating student:', error);
-                
-                let errorMessage = 'Failed to create student: ';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage += 'This email is already registered.';
-                } else {
-                    errorMessage += error.message;
-                }
-
-                alert(errorMessage);
-                submitBtn.textContent = 'Create Student Account';
-                submitBtn.disabled = false;
-            }
+        const response = await fetch(API_ENDPOINTS.ADMIN_STUDENT.CREATE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify(studentData)
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create student');
+        }
+
+        const result = await response.json();
+        console.log('Student created successfully:', result);
+
+        alert(`Student account created successfully!\n\nEmail: ${email}\nPassword: ${password}\n\nPlease share these credentials with the student.`);
+        
+        // Reset form
+        e.target.reset();
+        submitBtn.textContent = 'Create Student Account';
+        submitBtn.disabled = false;
+        
+        // Reload rooms
+        loadAvailableRooms();
+
+    } catch (error) {
+        console.error('Error creating student:', error);
+        alert('Failed to create student: ' + error.message);
+        submitBtn.textContent = 'Create Student Account';
+        submitBtn.disabled = false;
+    }
+});
     </script>
 </body>
 </html>
