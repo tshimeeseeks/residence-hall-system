@@ -70,8 +70,9 @@ public class MaintenanceController {
             }
 
             // Create MaintenanceQuery object
+            // CRITICAL FIX: Use firebaseUid as studentId for consistency across queries
             MaintenanceQuery query = MaintenanceQuery.builder()
-                    .studentId(student.getId())
+                    .studentId(firebaseUid) // ✓ FIXED: Using Firebase UID instead of MongoDB ID
                     .studentName(student.getFirstName() + " " + student.getLastName())
                     .studentEmail(student.getEmail())
                     .roomId(student.getRoomId())
@@ -88,7 +89,8 @@ public class MaintenanceController {
             // Save to database
             MaintenanceQuery savedQuery = maintenanceQueryRepository.save(query);
 
-            log.info("Maintenance query created successfully: {}", savedQuery.getId());
+            log.info("Maintenance query created successfully: {} (studentId: {})",
+                    savedQuery.getId(), firebaseUid);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
@@ -115,13 +117,25 @@ public class MaintenanceController {
             String firebaseUid = userDetails.getUid();
             Optional<Student> studentOpt = studentRepository.findByFirebaseUid(firebaseUid);
 
+            log.debug("Firebase UID: {}, Found student: {}", firebaseUid, studentOpt.isPresent());
+
             if (studentOpt.isEmpty()) {
+                log.warn("Student not found for firebaseUid: {}, email: {}", firebaseUid, userDetails.getEmail());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        Map.of("error", "Student not found"));
+                        Map.of(
+                                "error", "Student not found",
+                                "firebaseUid", firebaseUid,
+                                "email", userDetails.getEmail(),
+                                "message", "Your student account may not be registered or approved yet"));
             }
 
-            String studentId = studentOpt.get().getId();
+            // CRITICAL FIX: Use firebaseUid directly as studentId
+            String studentId = firebaseUid; // ✓ FIXED: Using Firebase UID consistently
+
+            log.debug("Querying maintenance_queries with studentId: {}", studentId);
             List<MaintenanceQuery> queries = maintenanceQueryRepository.findByStudentId(studentId);
+
+            log.info("Found {} maintenance queries for student {}", queries.size(), studentId);
 
             return ResponseEntity.ok(queries);
 
@@ -145,6 +159,7 @@ public class MaintenanceController {
             }
 
             List<MaintenanceQuery> queries = maintenanceQueryRepository.findAll();
+            log.info("Admin {} fetched {} maintenance queries", userDetails.getEmail(), queries.size());
             return ResponseEntity.ok(queries);
 
         } catch (Exception e) {
@@ -176,10 +191,9 @@ public class MaintenanceController {
             boolean isOwner = false;
 
             if (!isAdmin) {
-                Optional<Student> studentOpt = studentRepository.findByFirebaseUid(userDetails.getUid());
-                if (studentOpt.isPresent()) {
-                    isOwner = query.getStudentId().equals(studentOpt.get().getId());
-                }
+                // Check if current user owns this query using firebaseUid
+                String firebaseUid = userDetails.getUid();
+                isOwner = query.getStudentId().equals(firebaseUid);
             }
 
             if (!isAdmin && !isOwner) {
@@ -358,10 +372,9 @@ public class MaintenanceController {
             boolean isOwner = false;
 
             if (!isAdmin) {
-                Optional<Student> studentOpt = studentRepository.findByFirebaseUid(userDetails.getUid());
-                if (studentOpt.isPresent()) {
-                    isOwner = query.getStudentId().equals(studentOpt.get().getId());
-                }
+                // Check ownership using firebaseUid
+                String firebaseUid = userDetails.getUid();
+                isOwner = query.getStudentId().equals(firebaseUid);
             }
 
             if (!isAdmin && !isOwner) {

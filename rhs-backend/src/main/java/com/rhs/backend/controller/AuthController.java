@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,6 +46,7 @@ public class AuthController {
 
         try {
             log.info("Processing student signup request");
+            log.debug("Received signup data: {}", signupData.keySet());
 
             // Extract data
             String email = (String) signupData.get("email");
@@ -58,20 +60,42 @@ public class AuthController {
                     ? ((Number) signupData.get("yearOfStudy")).intValue()
                     : null;
 
-            // Validate required fields
-            if (email == null || password == null || firstName == null ||
-                    lastName == null || studentNumber == null || phoneNumber == null) {
+            // CRITICAL FIX: Validate required fields with detailed error messages
+            StringBuilder missingFields = new StringBuilder();
+            if (email == null || email.trim().isEmpty())
+                missingFields.append("email, ");
+            if (password == null || password.trim().isEmpty())
+                missingFields.append("password, ");
+            if (firstName == null || firstName.trim().isEmpty())
+                missingFields.append("firstName, ");
+            if (lastName == null || lastName.trim().isEmpty())
+                missingFields.append("lastName, ");
+            if (studentNumber == null || studentNumber.trim().isEmpty())
+                missingFields.append("studentNumber, ");
+            if (phoneNumber == null || phoneNumber.trim().isEmpty())
+                missingFields.append("phoneNumber, ");
+
+            if (missingFields.length() > 0) {
+                // Remove trailing comma and space
+                String missing = missingFields.substring(0, missingFields.length() - 2);
+                log.warn("Student registration failed - Missing fields: {}", missing);
                 return ResponseEntity.badRequest().body(
-                        Map.of("error", "Missing required fields"));
+                        Map.of(
+                                "error", "Missing required fields: " + missing,
+                                "requiredFields", List.of("email", "password", "firstName",
+                                        "lastName", "studentNumber", "phoneNumber"),
+                                "receivedFields", signupData.keySet()));
             }
 
             // Check if student already exists
             if (studentRepository.findByEmail(email).isPresent()) {
+                log.warn("Registration attempt with existing email: {}", email);
                 return ResponseEntity.badRequest().body(
                         Map.of("error", "A student with this email already exists"));
             }
 
             if (studentRepository.findByStudentNumber(studentNumber).isPresent()) {
+                log.warn("Registration attempt with existing student number: {}", studentNumber);
                 return ResponseEntity.badRequest().body(
                         Map.of("error", "A student with this student number already exists"));
             }
@@ -86,9 +110,9 @@ public class AuthController {
             UserRecord firebaseUser;
             try {
                 firebaseUser = firebaseAuth.createUser(firebaseRequest);
-                log.info("Firebase user created: {}", firebaseUser.getUid());
+                log.info("Firebase user created: {} for email: {}", firebaseUser.getUid(), email);
             } catch (FirebaseAuthException e) {
-                log.error("Failed to create Firebase user", e);
+                log.error("Failed to create Firebase user for email: {}", email, e);
                 return ResponseEntity.badRequest().body(
                         Map.of("error", "Failed to create account: " + e.getMessage()));
             }
@@ -110,7 +134,8 @@ public class AuthController {
 
             Student savedStudent = studentRepository.save(student);
 
-            log.info("Student registered successfully: {} ({})", email, savedStudent.getId());
+            log.info("Student registered successfully: {} ({}) with firebaseUid: {}",
+                    email, savedStudent.getId(), firebaseUser.getUid());
 
             // Return success response
             Map<String, Object> response = new HashMap<>();
@@ -140,6 +165,8 @@ public class AuthController {
         String firebaseUid = userDetails.getUid();
         String email = userDetails.getEmail();
 
+        log.info("Verifying token for user: {}, firebaseUid: {}", email, firebaseUid);
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("firebaseUid", firebaseUid);
@@ -156,6 +183,7 @@ public class AuthController {
             response.put("firstName", admin.getFirstName());
             response.put("lastName", admin.getLastName());
             response.put("department", admin.getDepartment());
+            log.info("Admin verified: {}", email);
             return ResponseEntity.ok(response);
         }
 
@@ -171,10 +199,12 @@ public class AuthController {
             response.put("lastName", student.getLastName());
             response.put("studentNumber", student.getStudentNumber());
             response.put("roomId", student.getRoomId());
+            log.info("Student verified: {}", email);
             return ResponseEntity.ok(response);
         }
 
         // User not found in database
+        log.warn("User not found in database for firebaseUid: {}, email: {}", firebaseUid, email);
         response.put("error", "User not registered in system");
         return ResponseEntity.status(404).body(response);
     }
