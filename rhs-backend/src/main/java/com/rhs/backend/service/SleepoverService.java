@@ -42,6 +42,32 @@ public class SleepOverService {
     }
 
     /**
+     * Update an existing sleepover pass
+     */
+    @Transactional
+    public SleepOverPass updateSleepOverPass(SleepOverPass sleepOverPass) {
+        // Verify the pass exists
+        SleepOverPass existingPass = sleepOverPassRepository.findById(sleepOverPass.getId())
+                .orElseThrow(() -> new RuntimeException("Sleepover pass not found"));
+
+        // Check if guest is blacklisted (if visitor details changed)
+        if (sleepOverPass.getVisitor() != null && isGuestBlacklisted(sleepOverPass.getVisitor())) {
+            throw new RuntimeException("Guest is blacklisted and cannot be approved for a sleepover pass");
+        }
+
+        // Check for date conflicts (excluding the current pass)
+        if (hasDateConflictExcludingCurrent(sleepOverPass)) {
+            throw new RuntimeException("You already have an active sleepover pass for these dates");
+        }
+
+        // Save the updated sleepover pass
+        SleepOverPass updatedPass = sleepOverPassRepository.save(sleepOverPass);
+
+        log.info("Sleepover pass updated: id={}, student={}", updatedPass.getId(), updatedPass.getStudentId());
+        return updatedPass;
+    }
+
+    /**
      * Approve a sleepover pass
      */
     @Transactional
@@ -127,6 +153,35 @@ public class SleepOverService {
             // Check for date overlap
             boolean datesOverlap = !newPass.getStartDate().isAfter(existingPass.getEndDate()) &&
                     !newPass.getEndDate().isBefore(existingPass.getStartDate());
+
+            if (datesOverlap) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if there's a date conflict for the student (excluding the current pass being updated)
+     */
+    private boolean hasDateConflictExcludingCurrent(SleepOverPass updatedPass) {
+        List<SleepOverPass> existingPasses = sleepOverPassRepository.findByStudentId(updatedPass.getStudentId());
+
+        for (SleepOverPass existingPass : existingPasses) {
+            // Skip the current pass being updated
+            if (existingPass.getId().equals(updatedPass.getId())) {
+                continue;
+            }
+
+            // Skip rejected passes
+            if ("REJECTED".equals(existingPass.getStatus())) {
+                continue;
+            }
+
+            // Check for date overlap
+            boolean datesOverlap = !updatedPass.getStartDate().isAfter(existingPass.getEndDate()) &&
+                    !updatedPass.getEndDate().isBefore(existingPass.getStartDate());
 
             if (datesOverlap) {
                 return true;
