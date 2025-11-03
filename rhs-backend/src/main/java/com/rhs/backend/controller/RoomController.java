@@ -21,9 +21,6 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    /**
-     * GET /api/rooms - Get all rooms
-     */
     @GetMapping
     public ResponseEntity<List<Room>> getAllRooms() {
         try {
@@ -36,10 +33,6 @@ public class RoomController {
         }
     }
 
-    /**
-     * GET /api/rooms/available - Get all available rooms
-     * This is the endpoint your frontend is calling!
-     */
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableRooms() {
         try {
